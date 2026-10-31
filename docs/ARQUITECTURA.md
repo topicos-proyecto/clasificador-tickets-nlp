@@ -19,7 +19,13 @@ Dataset mixto (público + propio)
 ## Regla principal
 El entrenamiento guarda un **pipeline completo de transformación y clasificación**; la API carga ese objeto y llama a `predict` / `predict_proba`. Prohibido duplicar la lógica de NLP manualmente en backend. La visualización didáctica puede exponer trazas de esas mismas transformaciones.
 
-## Estructura prevista
+## Organización en GitHub
+
+La organización `topicos-proyecto` contempla **cuatro repositorios**. El reparto definitivo entre repositorios está pendiente de asignación; el diagrama siguiente representa **capas y rutas de código lógicas**, no una obligación de alojarlas todas en este repositorio. Se requiere una integración reproducible entre componentes y un pipeline NLP idéntico al de entrenamiento.
+
+**Advertencia académica:** el PDF pide un solo repositorio por grupo; el uso de cuatro necesita validación del docente.
+
+## Estructura lógica prevista
 ```text
 data/raw/public/
 data/raw/custom/
