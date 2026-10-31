@@ -218,3 +218,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dataset bruto y resultados generados (se recrean con src/data/prepare_sid.py)
+/data/raw/
+/data/processed/
+
+# Dependencias / build del frontend
+node_modules/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/build/
+
+# Artefactos de modelos generados
+/artifacts/*.joblib
+/artifacts/*.pkl
