@@ -43,7 +43,13 @@ El backend **carga el pipeline entrenado y no reimplementa el NLP**. Se entregan
 
 ## Colaboración
 
-Un único repositorio por grupo. Trabajar en ramas `feature/...`, abrir pull requests y solicitar revisión de otro integrante. Cada estudiante debe aportar al menos un cambio significativo en NLP o Machine Learning además de su rol principal. Nunca compartir cuentas de GitHub.
+La organización de GitHub **[`topicos-proyecto`](https://github.com/topicos-proyecto)** tiene planificados **4 repositorios para el proyecto**. Este repositorio, `clasificador-tickets-nlp`, forma parte de esa organización; el reparto de responsabilidades y los nombres de los otros repositorios están pendientes de documentar y confirmar.
+
+En cada repositorio se trabajará en ramas `feature/...`, con pull requests revisados por otro integrante, commits individuales auténticos y contribuciones rastreables entre repositorios. Cada estudiante debe aportar al menos un cambio significativo en NLP o Machine Learning además de su rol principal.
+
+**Diferencia frente a la consigna:** la sección 6.2 del PDF solicita expresamente **un repositorio por grupo**. La decisión de usar **cuatro repositorios bajo una organización** todavía debe validarse con el docente. La organización de GitHub no sustituye automáticamente ese requisito.
+
+**Integración académica:** los cuatro repositorios deberán disponer de instrucciones coordinadas para reconstruir el sistema desde cero, identificar el pipeline de entrenamiento usado por inferencia, registrar contribuciones y preparar una versión final trazable.
 
 ## Estado actual
 
