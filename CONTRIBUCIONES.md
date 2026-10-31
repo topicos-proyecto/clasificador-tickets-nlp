@@ -1,8 +1,8 @@
 # Registro de contribuciones
 
-Este archivo deberá coincidir con la historia de commits del repositorio. No se atribuirán aportes que no consten en GitHub.
+Este archivo deberá coincidir con la historia de commits y pull requests de los **cuatro repositorios planificados en la organización `topicos-proyecto`**. No se atribuirán aportes que no consten en GitHub. Se añadirán enlaces a cada repositorio cuando se confirme su responsabilidad.
 
-| Integrante (usuario GitHub) | Responsabilidad principal | Commits / PR verificables | Aporte significativo NLP o ML |
+| Integrante (usuario GitHub) | Responsabilidad principal | Repositorio y commits / PR verificables | Aporte significativo NLP o ML |
 |---|---|---|---|
 | Pendiente | Datos y NLP | Pendiente | Pendiente |
 | Pendiente | Modelos y evaluación | Pendiente | Pendiente |
