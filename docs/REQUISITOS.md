@@ -41,15 +41,16 @@ Lista basada en **Proyecto Integrador – Primer Parcial**, Tópicos y Programac
 - [ ] README completo para instalar y levantar el sistema desde cero.
 
 ## Colaboración y entrega
-- [ ] Un repositorio del grupo; docente colaborador desde el inicio.
+- [ ] **Validar con el docente la organización de repositorios:** el PDF exige un repositorio por grupo; el equipo propone cuatro repositorios dentro de `topicos-proyecto`. Esta diferencia está pendiente de aprobación.
+- [ ] Asegurar que el docente tenga acceso a todos los repositorios relevantes desde el inicio.
 - [ ] Cuenta individual por integrante y configuración de identidad Git.
 - [ ] Ramas por funcionalidad y PR revisado por otro integrante.
 - [ ] Commits frecuentes, descriptivos y auténticos; no reescribir historia de main.
 - [ ] Cada integrante realiza al menos un commit significativo en NLP o ML.
-- [ ] Archivo CONTRIBUCIONES.md acorde al historial.
+- [ ] Archivo CONTRIBUCIONES.md y enlaces a contribuciones verificables en los repositorios utilizados.
 - [ ] Código fuente, artefactos o script regenerador, notebooks, informe en docs/, presentación.
-- [ ] Crear tag entrega-final sobre el commit evaluado.
-- [ ] Poder clonar el tag y ejecutar todo durante la defensa, explicar aportes y modificar código en vivo.
+- [ ] Acordar con el docente cómo identificar la versión final con cuatro repositorios; el PDF solicita un tag `entrega-final` sobre el commit evaluado.
+- [ ] Poder reproducir desde las versiones finales coordinadas el sistema completo durante la defensa, explicar aportes y modificar código en vivo.
 - [ ] Declarar uso de asistentes de IA en el informe, si corresponde.
 
 **Fecha indicada en el PDF:** presentación 3 de noviembre; último commit del día anterior a las 23:59. Para 2026: 2 de noviembre, 23:59.
