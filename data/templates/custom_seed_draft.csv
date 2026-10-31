@@ -1,0 +1,71 @@
+text,department,source,intent,language
+¿Qué promociones tienen para los clientes que se registran por primera vez?,Marketing,borrador_ia,promociones,es
+"Vi un anuncio sobre una oferta de bienvenida, ¿todavía está disponible?",Marketing,borrador_ia,promociones,es
+¿Dónde puedo consultar las promociones vigentes de este mes?,Marketing,borrador_ia,promociones,es
+¿La promoción de aniversario también aplica a los clientes antiguos?,Marketing,borrador_ia,promociones,es
+"Me llegó una notificación de una oferta especial, ¿cómo participo?",Marketing,borrador_ia,promociones,es
+Quisiera saber cuándo empieza su próxima temporada de ofertas.,Marketing,borrador_ia,promociones,es
+¿Ofrecen descuentos para estudiantes universitarios?,Marketing,borrador_ia,descuentos,es
+Compré durante la campaña pero no se aplicó el descuento anunciado.,Marketing,borrador_ia,descuentos,es
+¿El descuento del 20 por ciento es acumulable con otras ofertas?,Marketing,borrador_ia,descuentos,es
+¿Hay algún beneficio para quienes contratan por primera vez?,Marketing,borrador_ia,descuentos,es
+¿Hasta qué fecha se puede aprovechar el descuento de temporada?,Marketing,borrador_ia,descuentos,es
+Necesito confirmar si la rebaja publicada también vale en la tienda física.,Marketing,borrador_ia,descuentos,es
+Tengo un cupón promocional y quiero saber dónde ingresarlo.,Marketing,borrador_ia,cupones,es
+El código de descuento aparece como vencido aunque lo recibí hoy.,Marketing,borrador_ia,cupones,es
+¿Puedo usar dos cupones en una misma compra?,Marketing,borrador_ia,cupones,es
+No encuentro el código de la campaña que me enviaron por correo.,Marketing,borrador_ia,cupones,es
+¿Los cupones de bienvenida sirven para productos en liquidación?,Marketing,borrador_ia,cupones,es
+Quiero participar en la campaña de lanzamiento que vi en redes sociales.,Marketing,borrador_ia,campanas,es
+¿Cómo funciona el sorteo anunciado en su cuenta oficial?,Marketing,borrador_ia,campanas,es
+¿Dónde puedo leer las condiciones de su campaña de premios?,Marketing,borrador_ia,campanas,es
+Me gustaría conocer los requisitos para recibir el regalo promocional.,Marketing,borrador_ia,campanas,es
+¿La campaña publicitaria está disponible en todas las ciudades?,Marketing,borrador_ia,campanas,es
+"Invité a una amiga con mi enlace, ¿cuándo se acredita la recompensa?",Marketing,borrador_ia,referidos,es
+¿Qué beneficios tengo si recomiendo la empresa a otras personas?,Marketing,borrador_ia,referidos,es
+Compartí mi código de referido pero no figura la bonificación.,Marketing,borrador_ia,referidos,es
+¿Hay un límite de personas que puedo invitar al programa de referidos?,Marketing,borrador_ia,referidos,es
+¿Tienen puntos de recompensa para clientes frecuentes?,Marketing,borrador_ia,fidelizacion,es
+¿Cómo puedo participar en el programa de fidelidad?,Marketing,borrador_ia,fidelizacion,es
+Mis puntos de una campaña no aparecen en el saldo de beneficios.,Marketing,borrador_ia,fidelizacion,es
+¿Qué promociones exclusivas reciben los miembros del club de clientes?,Marketing,borrador_ia,fidelizacion,es
+La aplicación no me permite iniciar sesión aunque la contraseña es correcta.,Soporte TI,borrador_ia,inicio_sesion,es
+El código de verificación nunca llega y no puedo ingresar a mi perfil.,Soporte TI,borrador_ia,codigo_verificacion,es
+Cada vez que abro la plataforma se cierra inesperadamente.,Soporte TI,borrador_ia,error_aplicacion,es
+La página muestra un error 500 cuando intento guardar mis cambios.,Soporte TI,borrador_ia,error_servidor,es
+Olvidé la contraseña y el enlace para restablecerla no funciona.,Soporte TI,borrador_ia,recuperacion_acceso,es
+El sistema se quedó fuera de servicio y nadie en mi equipo puede acceder.,Soporte TI,borrador_ia,indisponibilidad,es
+Dejé activadas las alertas pero la aplicación no me muestra ninguna notificación.,Soporte TI,borrador_ia,notificaciones,es
+Al intentar descargar un archivo la web se congela y no termina la operación.,Soporte TI,borrador_ia,descarga_error,es
+En mi extracto aparecen dos cargos por una sola compra.,Finanzas,borrador_ia,cobro_duplicado,es
+Necesito que emitan la factura con los datos fiscales de mi empresa.,Finanzas,borrador_ia,factura,es
+"Me cancelaron el servicio, ¿cuándo recibiré la devolución del pago?",Finanzas,borrador_ia,reembolso,es
+La transferencia ya fue realizada pero mi deuda sigue figurando como pendiente.,Finanzas,borrador_ia,pago_pendiente,es
+El monto de la última factura no coincide con el plan contratado.,Finanzas,borrador_ia,monto_incorrecto,es
+¿En qué fecha se genera el próximo cobro de mi suscripción?,Finanzas,borrador_ia,ciclo_facturacion,es
+¿Pueden enviarme el recibo del pago realizado el mes pasado?,Finanzas,borrador_ia,comprobante,es
+Quiero consultar un cargo que no reconozco en mi estado de cuenta.,Finanzas,borrador_ia,cargo_desconocido,es
+Necesito una cotización para contratar treinta cuentas empresariales.,Ventas,borrador_ia,cotizacion,es
+"Quiero comprar el paquete básico, ¿cómo inicio la contratación?",Ventas,borrador_ia,compra,es
+Antes de adquirir el servicio quisiera conocer sus funciones principales.,Ventas,borrador_ia,caracteristicas_producto,es
+¿Qué opciones de licencias ofrecen para un equipo pequeño?,Ventas,borrador_ia,licencias,es
+¿Cuánto cuesta el plan anual en comparación con el mensual?,Ventas,borrador_ia,precio,es
+¿Tienen disponible el producto que aparece en el catálogo?,Ventas,borrador_ia,disponibilidad,es
+¿Podrían programar una demostración antes de que decidamos contratar?,Ventas,borrador_ia,demostracion,es
+¿Qué diferencias hay entre el paquete estándar y el profesional?,Ventas,borrador_ia,comparacion_planes,es
+¿Cuál es el horario de atención durante los feriados?,Atención al Cliente,borrador_ia,horarios,es
+¿Cómo puedo comunicarme con un asesor por teléfono?,Atención al Cliente,borrador_ia,contacto,es
+Necesito la dirección de la oficina más cercana.,Atención al Cliente,borrador_ia,ubicacion,es
+¿Qué pasos debo seguir para presentar una consulta formal?,Atención al Cliente,borrador_ia,procedimiento,es
+Soy nuevo y quisiera saber dónde encuentro la guía de uso.,Atención al Cliente,borrador_ia,instrucciones,es
+"Envié una consulta ayer, ¿cómo puedo consultar su estado?",Atención al Cliente,borrador_ia,seguimiento_solicitud,es
+"Prefiero hablar con una persona, ¿me pueden derivar con un asesor?",Atención al Cliente,borrador_ia,asesor_humano,es
+¿Por cuáles canales puedo contactar al servicio de atención?,Atención al Cliente,borrador_ia,canales_atencion,es
+¿Dónde puedo ver el número de seguimiento de mi paquete?,Logística,borrador_ia,seguimiento,es
+Mi pedido tenía entrega para ayer y todavía no llega.,Logística,borrador_ia,retraso,es
+Necesito cambiar la dirección de envío antes de que salga el paquete.,Logística,borrador_ia,cambio_direccion,es
+El sistema dice entregado pero nadie recibió mi compra.,Logística,borrador_ia,entrega_extraviada,es
+La caja llegó dañada durante el transporte.,Logística,borrador_ia,paquete_danado,es
+¿Puedo elegir una franja horaria para recibir el pedido?,Logística,borrador_ia,franja_entrega,es
+Llegó una sola caja aunque el envío incluía tres bultos.,Logística,borrador_ia,entrega_incompleta,es
+¿Qué empresa de mensajería se encargará de transportar mi pedido?,Logística,borrador_ia,transportista,es
