@@ -1,0 +1,58 @@
+{
+  "Soporte TI": [
+    "login_issue",
+    "reset_password",
+    "change_password",
+    "recover_username",
+    "report_bug",
+    "troubleshoot_issue",
+    "request_software_update",
+    "reset_device",
+    "connect_device",
+    "recover_data",
+    "fix_login_error",
+    "resolve_crash",
+    "improve_performance",
+    "configure_settings"
+  ],
+  "Finanzas": [
+    "check_invoice",
+    "update_payment_method",
+    "report_payment_failure",
+    "request_receipt",
+    "dispute_charge",
+    "check_billing_cycle",
+    "request_payment_plan",
+    "request_refund"
+  ],
+  "Ventas": [
+    "product_availability",
+    "product_specifications",
+    "compare_products",
+    "request_demo",
+    "request_catalog",
+    "ask_about_features",
+    "ask_about_pricing",
+    "check_stock"
+  ],
+  "Marketing": [
+    "apply_discount_coupon"
+  ],
+  "Atención al Cliente": [
+    "ask_business_hours",
+    "ask_contact_info",
+    "find_store_location",
+    "get_directions",
+    "check_faq",
+    "explain_process",
+    "escalate_to_human",
+    "request_manager"
+  ],
+  "Logística": [
+    "track_order",
+    "check_order_status",
+    "change_shipping_address",
+    "check_shipping_cost",
+    "report_delivery_issue"
+  ]
+}
