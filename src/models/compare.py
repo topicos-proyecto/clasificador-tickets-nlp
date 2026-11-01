@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import platform
+import time
 import warnings
 from collections import Counter
 from pathlib import Path
@@ -17,7 +19,7 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
@@ -28,7 +30,20 @@ SEED = 42
 METHODS = ('stemming', 'lemmatization')
 NGRAMS = (1, 2)
 MODELS = ('naive_bayes', 'logistic_regression')
-PARAMETERS = {'naive_bayes': (0.5, 1.0), 'logistic_regression': (0.1, 1.0)}
+MAX_ITER = 5000
+# Hiperparámetro principal de cada modelo; el resto de campos de GRID son secundarios.
+PRIMARY = {'naive_bayes': 'alpha', 'logistic_regression': 'C'}
+GRID = {
+    'naive_bayes': [{'alpha': alpha} for alpha in (0.01, 0.03, 0.1, 0.3, 0.5, 1.0)],
+    'logistic_regression': [{'C': c, 'class_weight': weight}
+                            for c in (0.1, 1.0, 10.0, 30.0, 100.0) for weight in (None, 'balanced')],
+}
+TFIDF_GRID = {'min_df': (1, 2, 3), 'max_df': (1.0, 0.9)}
+DEFAULT_TFIDF = {'min_df': 1, 'max_df': 1.0}
+SELECTION_RULE = ('Mayor media de F1 macro en CV. Se aplica la regla de una desviación estándar: entre las '
+                  'configuraciones cuya media no queda por debajo de (mejor media - desviación de la mejor) se '
+                  'elige la más simple: unigramas, Naive Bayes, mayor regularización (alpha mayor, C menor), '
+                  'sin pesos de clase y stemming; la última desambiguación es la mayor media.')
 DIAGNOSTICS = [
     ('la aplicación no me funciona', 'Soporte TI'),
     ('buenas, tengo un problema y no se me descargó la factura', 'Finanzas'),
@@ -37,61 +52,139 @@ DIAGNOSTICS = [
 ]
 
 
-def classifier(name: str, value: float):
+def classifier(name: str, value: float, class_weight: str | None = None):
     if name == 'naive_bayes':
         return MultinomialNB(alpha=value)
     if name == 'logistic_regression':
-        return LogisticRegression(C=value, max_iter=2000, random_state=SEED)
+        return LogisticRegression(C=value, class_weight=class_weight, max_iter=MAX_ITER, random_state=SEED)
     raise ValueError(f'Modelo desconocido: {name}')
 
 
-def vectorizer(method: str, ngrams: int) -> TfidfVectorizer:
+def vectorizer(method: str, ngrams: int, min_df=1, max_df=1.0) -> TfidfVectorizer:
     return TfidfVectorizer(tokenizer=SpanishTokenizer(method), token_pattern=None,
-                           lowercase=False, ngram_range=(1, ngrams), min_df=1, max_df=1.0)
+                           lowercase=False, ngram_range=(1, ngrams), min_df=min_df, max_df=max_df)
 
 
-def pretokenized_vectorizer(ngrams: int) -> TfidfVectorizer:
+def pretokenized_vectorizer(ngrams: int, min_df=1, max_df=1.0) -> TfidfVectorizer:
     # La tokenización no aprende del corpus; TF-IDF se ajusta por separado en cada fold.
     return TfidfVectorizer(tokenizer=str.split, token_pattern=None, lowercase=False,
-                           ngram_range=(1, ngrams), min_df=1, max_df=1.0)
+                           ngram_range=(1, ngrams), min_df=min_df, max_df=max_df)
 
 
-def key(method: str, ngrams: int, model: str, value: float) -> tuple:
-    return method, ngrams, model, value
-
-
-def ranking(result: dict) -> tuple:
-    # Mayor F1; en empate priorizar unigramas, NB, stemming y regularización mayor.
-    return (-result['f1_macro_mean'], result['ngrams'], MODELS.index(result['model']),
-            METHODS.index(result['method']), result['parameter_value'] if result['model'] == 'logistic_regression'
-            else -result['parameter_value'])
-
-
-def compare(train_texts: list[str], train_labels: list[str], n_splits: int = 3) -> list[dict]:
-    labels = np.asarray(train_labels)
-    if set(labels) != set(LABELS) or min(Counter(labels).values()) < n_splits:
-        raise ValueError('Entrenamiento debe contener las seis clases con suficientes filas para CV.')
-    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=SEED)
-    folds = list(cv.split(train_texts, labels))
-    results = {}
+def configurations(grid: dict | None = None) -> list[dict]:
+    """Expande la rejilla en configuraciones únicas, en orden determinista."""
+    grid = GRID if grid is None else grid
+    expanded = []
     for method in METHODS:
         for ngrams in NGRAMS:
             for model in MODELS:
-                for value in PARAMETERS[model]:
-                    results[key(method, ngrams, model, value)] = {
-                        'method': method, 'ngrams': ngrams, 'model': model,
-                        'parameter_name': 'alpha' if model == 'naive_bayes' else 'C',
-                        'parameter_value': value, 'fold_f1_macro': [], 'errors': []}
+                for params in grid.get(model, []):
+                    value = params[PRIMARY[model]]
+                    expanded.append({'method': method, 'ngrams': ngrams, 'model': model,
+                                     'parameter_name': PRIMARY[model], 'parameter_value': value,
+                                     'class_weight': params.get('class_weight')})
+    return expanded
+
+
+def key(config: dict) -> tuple:
+    return (config['method'], config['ngrams'], config['model'],
+            config['parameter_value'], config.get('class_weight'))
+
+
+def ranking(result: dict) -> tuple:
+    """Orden de simplicidad: menor es mejor. Se usa solo entre candidatos equivalentes."""
+    regularization = (-result['parameter_value'] if result['model'] == 'naive_bayes'
+                      else result['parameter_value'])
+    return (result['ngrams'], MODELS.index(result['model']), regularization,
+            result.get('class_weight') is not None, METHODS.index(result['method']),
+            -result['f1_macro_mean'])
+
+
+def valid_results(results: list[dict]) -> list[dict]:
+    return [r for r in results if r.get('status') == 'ok']
+
+
+def best_by_mean(results: list[dict]) -> dict | None:
+    """Mejor media de CV sin regla de simplicidad (los empates se resuelven con `ranking`)."""
+    valid = valid_results(results)
+    return min(valid, key=lambda r: (-r['f1_macro_mean'], ranking(r))) if valid else None
+
+
+def select(results: list[dict]) -> dict | None:
+    """Regla de una desviación estándar: la configuración más simple cercana a la mejor."""
+    best = best_by_mean(results)
+    if best is None:
+        return None
+    threshold = best['f1_macro_mean'] - best['f1_macro_std']
+    candidates = [r for r in valid_results(results) if r['f1_macro_mean'] >= threshold - 1e-12]
+    return min(candidates, key=ranking)
+
+
+def describe(result: dict) -> dict:
+    return {k: result.get(k) for k in ('model', 'method', 'ngrams', 'parameter_name', 'parameter_value',
+                                       'class_weight', 'f1_macro_mean', 'f1_macro_std')}
+
+
+def paired_comparison(results: list[dict]) -> dict | None:
+    """Diferencia por partición entre la mejor LR y el mejor NB (LR - NB), con las mismas particiones."""
+    nb = best_by_mean([r for r in results if r['model'] == 'naive_bayes'])
+    lr = best_by_mean([r for r in results if r['model'] == 'logistic_regression'])
+    if nb is None or lr is None:
+        return None
+    diffs = [float(a - b) for a, b in zip(lr['fold_f1_macro'], nb['fold_f1_macro'])]
+    return {'logistic_regression': describe(lr), 'naive_bayes': describe(nb),
+            'fold_differences_lr_minus_nb': diffs, 'mean_difference': float(np.mean(diffs)),
+            'std_difference': float(np.std(diffs)),
+            'lr_exceeds_nb_by_more_than_one_std': bool(np.mean(diffs) > lr['f1_macro_std'])}
+
+
+def make_folds(texts, labels, n_splits: int = 3, groups=None):
+    if groups is None:
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=SEED)
+        return list(cv.split(texts, labels))
+    cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=SEED)
+    return list(cv.split(texts, labels, groups))
+
+
+def pretokenize(texts, method: str):
+    tokenizer = SpanishTokenizer(method)
+    cache = {}
+    for text in texts:
+        if text not in cache:
+            cache[text] = ' '.join(tokenizer(text))
+    return np.asarray([cache[text] for text in texts], dtype=object)
+
+
+def score_fold(config: dict, x_train, y_train, x_val, y_val) -> float:
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', ConvergenceWarning)
+        estimator = classifier(config['model'], config['parameter_value'], config.get('class_weight'))
+        estimator.fit(x_train, y_train)
+        predicted = estimator.predict(x_val)
+    return float(f1_score(y_val, predicted, labels=LABELS, average='macro', zero_division=0))
+
+
+def finish(result: dict, n_splits: int) -> None:
+    valid = not result['errors'] and len(result['fold_f1_macro']) == n_splits
+    result['status'] = 'ok' if valid else 'failed'
+    result['f1_macro_mean'] = float(np.mean(result['fold_f1_macro'])) if valid else None
+    result['f1_macro_std'] = float(np.std(result['fold_f1_macro'])) if valid else None
+
+
+def compare(train_texts: list[str], train_labels: list[str], n_splits: int = 3,
+            grid: dict | None = None, timings: dict | None = None, groups=None) -> list[dict]:
+    labels = np.asarray(train_labels)
+    if set(labels) != set(LABELS) or min(Counter(labels).values()) < n_splits:
+        raise ValueError('Entrenamiento debe contener las seis clases con suficientes filas para CV.')
+    folds = make_folds(train_texts, labels, n_splits, groups)
+    results = {}
+    for config in configurations(grid):
+        results[key(config)] = {**config, 'fold_f1_macro': [], 'errors': []}
+    for method in METHODS:
+        started = time.perf_counter()
         try:
             print(f'Procesando {method}...', flush=True)
-            tokenizer = SpanishTokenizer(method)
-            cache = {}
-            transformed = []
-            for text in train_texts:
-                if text not in cache:
-                    cache[text] = ' '.join(tokenizer(text))
-                transformed.append(cache[text])
-            transformed = np.asarray(transformed, dtype=object)
+            transformed = pretokenize(train_texts, method)
         except Exception as exc:
             for k, result in results.items():
                 if k[0] == method:
@@ -99,36 +192,101 @@ def compare(train_texts: list[str], train_labels: list[str], n_splits: int = 3) 
             continue
         for ngrams in NGRAMS:
             for fold, (train_idx, val_idx) in enumerate(folds, 1):
+                members = [r for k, r in results.items() if k[0] == method and k[1] == ngrams]
                 try:
                     tfidf = pretokenized_vectorizer(ngrams)
                     x_train = tfidf.fit_transform(transformed[train_idx])
                     x_val = tfidf.transform(transformed[val_idx])
                 except Exception as exc:
-                    for model in MODELS:
-                        for value in PARAMETERS[model]:
-                            results[key(method, ngrams, model, value)]['errors'].append(
-                                f'Fold {fold}, TF-IDF: {type(exc).__name__}: {exc}')
+                    for result in members:
+                        result['errors'].append(f'Fold {fold}, TF-IDF: {type(exc).__name__}: {exc}')
                     continue
-                for model in MODELS:
-                    for value in PARAMETERS[model]:
-                        result = results[key(method, ngrams, model, value)]
-                        try:
-                            with warnings.catch_warnings():
-                                warnings.simplefilter('error', ConvergenceWarning)
-                                estimator = classifier(model, value)
-                                estimator.fit(x_train, labels[train_idx])
-                                predicted = estimator.predict(x_val)
-                            result['fold_f1_macro'].append(float(f1_score(
-                                labels[val_idx], predicted, labels=LABELS, average='macro', zero_division=0)))
-                        except Exception as exc:
-                            result['errors'].append(f'Fold {fold}: {type(exc).__name__}: {exc}')
+                for result in members:
+                    try:
+                        result['fold_f1_macro'].append(score_fold(
+                            result, x_train, labels[train_idx], x_val, labels[val_idx]))
+                    except Exception as exc:
+                        result['errors'].append(f'Fold {fold}: {type(exc).__name__}: {exc}')
                 print(f'  {method}, ngramas 1-{ngrams}, fold {fold}/{n_splits}', flush=True)
+        if timings is not None:
+            timings[method] = round(time.perf_counter() - started, 1)
     for result in results.values():
-        valid = not result['errors'] and len(result['fold_f1_macro']) == n_splits
-        result['status'] = 'ok' if valid else 'failed'
-        result['f1_macro_mean'] = float(np.mean(result['fold_f1_macro'])) if valid else None
-        result['f1_macro_std'] = float(np.std(result['fold_f1_macro'])) if valid else None
+        finish(result, n_splits)
     return list(results.values())
+
+
+def tfidf_sweep(train_texts, train_labels, base: dict, n_splits: int = 3) -> list[dict]:
+    """Barrido pequeño de min_df/max_df solo para la configuración elegida."""
+    labels = np.asarray(train_labels)
+    folds = make_folds(train_texts, labels, n_splits)
+    transformed = pretokenize(train_texts, base['method'])
+    rows = []
+    for min_df in TFIDF_GRID['min_df']:
+        for max_df in TFIDF_GRID['max_df']:
+            row = {'min_df': min_df, 'max_df': max_df, 'fold_f1_macro': [], 'errors': []}
+            try:
+                full = pretokenized_vectorizer(base['ngrams'], min_df, max_df).fit(transformed)
+                row['vocabulary_size'] = len(full.vocabulary_)
+            except Exception as exc:
+                row['errors'].append(f'Vocabulario: {type(exc).__name__}: {exc}')
+            for fold, (train_idx, val_idx) in enumerate(folds, 1):
+                if row['errors']:
+                    break
+                try:
+                    tfidf = pretokenized_vectorizer(base['ngrams'], min_df, max_df)
+                    x_train = tfidf.fit_transform(transformed[train_idx])
+                    x_val = tfidf.transform(transformed[val_idx])
+                    row['fold_f1_macro'].append(score_fold(base, x_train, labels[train_idx],
+                                                           x_val, labels[val_idx]))
+                except Exception as exc:
+                    row['errors'].append(f'Fold {fold}: {type(exc).__name__}: {exc}')
+            finish(row, n_splits)
+            rows.append(row)
+            print(f'  TF-IDF min_df={min_df}, max_df={max_df}: {row["status"]}', flush=True)
+    return rows
+
+
+def choose_tfidf(sweep: list[dict]) -> dict:
+    """Se conservan los valores por defecto salvo mejora mayor que una desviación estándar."""
+    default = next((r for r in sweep if (r['min_df'], r['max_df']) == (1, 1.0) and r['status'] == 'ok'), None)
+    candidates = valid_results(sweep)
+    if default is None or not candidates:
+        return dict(DEFAULT_TFIDF)
+    best = max(candidates, key=lambda r: (r['f1_macro_mean'], -r['min_df'], r['max_df']))
+    if best['f1_macro_mean'] - default['f1_macro_mean'] > default['f1_macro_std']:
+        return {'min_df': best['min_df'], 'max_df': best['max_df']}
+    return dict(DEFAULT_TFIDF)
+
+
+def read_intents(path: Path) -> list[str]:
+    with path.open(encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        if 'intent' not in (reader.fieldnames or ()):
+            raise ValueError(f'{path}: falta la columna intent para la sensibilidad agrupada')
+        return [r['intent'] or r['text'] for r in reader]
+
+
+def grouped_sensitivity(train_texts, train_labels, intents, results: list[dict]) -> dict:
+    """CV agrupado por intención SID: mucho más estricto que el CV principal (intenciones nunca vistas)."""
+    finalists = [r for r in (best_by_mean([x for x in results if x['model'] == m]) for m in MODELS) if r]
+    labels = np.asarray(train_labels)
+    folds = make_folds(train_texts, labels, 3, intents)
+    output = []
+    for base in finalists:
+        transformed = pretokenize(train_texts, base['method'])
+        scores, errors = [], []
+        for fold, (train_idx, val_idx) in enumerate(folds, 1):
+            try:
+                tfidf = pretokenized_vectorizer(base['ngrams'])
+                x_train = tfidf.fit_transform(transformed[train_idx])
+                x_val = tfidf.transform(transformed[val_idx])
+                scores.append(score_fold(base, x_train, labels[train_idx], x_val, labels[val_idx]))
+            except Exception as exc:
+                errors.append(f'Fold {fold}: {type(exc).__name__}: {exc}')
+        output.append({**describe(base), 'grouped_fold_f1_macro': scores, 'errors': errors,
+                       'grouped_f1_macro_mean': float(np.mean(scores)) if scores and not errors else None})
+    return {'grouping': 'intención SID (intent)', 'n_groups': len(set(intents)), 'finalists': output,
+            'note': 'Análisis de sensibilidad: no interviene en la selección.'}
 
 
 def main() -> None:
@@ -136,19 +294,34 @@ def main() -> None:
     parser.add_argument('--data-dir', type=Path, default=DATA,
                         help='Directorio que contiene train.csv y validation.csv')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'artifacts/comparison')
+    parser.add_argument('--overwrite', action='store_true',
+                        help='Permite sobrescribir un pipeline.joblib existente en --output-dir')
+    parser.add_argument('--tfidf-grid', action='store_true',
+                        help='Barrido de min_df/max_df sobre la configuración elegida')
+    parser.add_argument('--grouped-cv', action='store_true',
+                        help='Añade un análisis de sensibilidad con CV agrupado por intención SID')
     args = parser.parse_args()
+    if (args.output_dir / 'pipeline.joblib').exists() and not args.overwrite:
+        raise SystemExit(f'{args.output_dir}/pipeline.joblib ya existe; usa otro --output-dir o --overwrite.')
     train_path, val_path = args.data_dir / 'train.csv', args.data_dir / 'validation.csv'
     train_texts, train_labels = load_data(train_path)
-    results = compare(train_texts, train_labels)
-    valid = sorted((r for r in results if r['status'] == 'ok'), key=ranking)
+    timings: dict = {}
+    results = compare(train_texts, train_labels, timings=timings)
+    valid = valid_results(results)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     if not valid:
         (args.output_dir / 'failures.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         raise SystemExit('No hubo configuraciones válidas; ver failures.json.')
-    best = valid[0]
+    best = select(results)
+    strict = best_by_mean(results)
     print('Configuración seleccionada:', best, flush=True)
-    model = Pipeline([('tfidf', vectorizer(best['method'], best['ngrams'])),
-                      ('classifier', classifier(best['model'], best['parameter_value']))])
+    tfidf_params, sweep = dict(DEFAULT_TFIDF), None
+    if args.tfidf_grid:
+        sweep = tfidf_sweep(train_texts, train_labels, best)
+        tfidf_params = choose_tfidf(sweep)
+    best = {**best, **tfidf_params}
+    model = Pipeline([('tfidf', vectorizer(best['method'], best['ngrams'], **tfidf_params)),
+                      ('classifier', classifier(best['model'], best['parameter_value'], best.get('class_weight')))])
     with warnings.catch_warnings():
         warnings.simplefilter('error', ConvergenceWarning)
         model.fit(train_texts, train_labels)
@@ -158,15 +331,21 @@ def main() -> None:
                    for (text, expected), predicted in zip(DIAGNOSTICS, model.predict([t for t, _ in DIAGNOSTICS]))]
     errors = [{'text': text, 'actual': actual, 'predicted': predicted}
               for text, actual, predicted in zip(val_texts, val_labels, predictions) if actual != predicted]
+    other = [r for r in valid if r['model'] != best['model']]
     report = {
-        'selection': 'Mayor media F1 macro CV; empate: unigramas, NB, stemming y mayor regularización.',
+        'selection': SELECTION_RULE,
         'seed': SEED, 'folds': 3, 'test_used': False,
         'inputs_sha256': {'train': digest(train_path), 'validation': digest(val_path)},
         'versions': {'python': platform.python_version(), 'scikit_learn': sklearn.__version__,
                      'nltk': nltk.__version__, 'spacy': spacy.__version__, 'joblib': joblib.__version__,
                      'spacy_model': spacy.util.get_package_version('es_core_news_sm')},
         'counts': {'train': len(train_texts), 'validation': len(val_texts)},
+        'grid': GRID, 'n_configurations': len(results), 'elapsed_seconds': timings,
         'configurations': results, 'selected': best,
+        'best_by_mean': describe(strict),
+        'runner_up_other_model': describe(best_by_mean(other)) if other else None,
+        'paired_comparison': paired_comparison(results),
+        'tfidf_grid': sweep, 'vocabulary_size': len(model.named_steps['tfidf'].vocabulary_),
         'validation': {'f1_macro': float(f1_score(val_labels, predictions, labels=LABELS, average='macro', zero_division=0)),
                        'classification_report': classification_report(val_labels, predictions, labels=LABELS,
                                                                         output_dict=True, zero_division=0),
@@ -177,6 +356,12 @@ def main() -> None:
         'limitations': 'SID es sintético y train puede contener variantes similares entre folds; '
                        'validation tiene solo 4 ejemplos de Marketing. No se evaluó test ni datos humanos.',
     }
+    if args.grouped_cv:
+        try:
+            report['grouped_sensitivity'] = grouped_sensitivity(
+                train_texts, train_labels, read_intents(train_path), results)
+        except Exception as exc:  # análisis opcional: no debe impedir guardar el modelo
+            report['grouped_sensitivity'] = {'error': f'{type(exc).__name__}: {exc}'}
     joblib.dump(model, args.output_dir / 'pipeline.joblib')
     report['model_sha256'] = digest(args.output_dir / 'pipeline.joblib')
     (args.output_dir / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
