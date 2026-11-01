@@ -69,3 +69,63 @@ La caja llegó dañada durante el transporte.,Logística,borrador_ia,paquete_dan
 ¿Puedo elegir una franja horaria para recibir el pedido?,Logística,borrador_ia,franja_entrega,es
 Llegó una sola caja aunque el envío incluía tres bultos.,Logística,borrador_ia,entrega_incompleta,es
 ¿Qué empresa de mensajería se encargará de transportar mi pedido?,Logística,borrador_ia,transportista,es
+¿La oferta de bienvenida exige registrarse antes de comprar?,Marketing,borrador_ia,promociones,es
+No veo en la web el beneficio que anunciaron para nuevas cuentas.,Marketing,borrador_ia,promociones,es
+¿Puedo participar en la promoción si ya fui cliente hace años?,Marketing,borrador_ia,promociones,es
+"La oferta que recibí por mensaje, ¿tiene un importe mínimo de compra?",Marketing,borrador_ia,promociones,es
+¿En qué canales publican las bases de las promociones activas?,Marketing,borrador_ia,promociones,es
+Quisiera saber si la oferta de fin de semana incluye todos los productos.,Marketing,borrador_ia,promociones,es
+¿Puedo activar el beneficio de cumpleaños después de esa fecha?,Marketing,borrador_ia,promociones,es
+En el anuncio dice promoción limitada; ¿cuántas unidades participan?,Marketing,borrador_ia,promociones,es
+¿Cómo me entero cuando vuelvan a lanzar la oferta para familias?,Marketing,borrador_ia,promociones,es
+"La promoción aparece en redes, pero no encuentro sus condiciones.",Marketing,borrador_ia,promociones,es
+¿La rebaja por compra anticipada tiene algún límite por persona?,Marketing,borrador_ia,descuentos,es
+Anunciaron precio reducido para jubilados; ¿qué requisitos piden?,Marketing,borrador_ia,descuentos,es
+¿El beneficio por volumen se aplica a todos los artículos de la campaña?,Marketing,borrador_ia,descuentos,es
+El anuncio decía mitad de precio y el importe final no refleja esa rebaja.,Marketing,borrador_ia,descuentos,es
+¿Puedo aprovechar la tarifa promocional si renuevo mi suscripción?,Marketing,borrador_ia,descuentos,es
+¿Qué productos están excluidos de la rebaja anunciada?,Marketing,borrador_ia,descuentos,es
+¿La reducción por inscripción temprana sigue activa esta semana?,Marketing,borrador_ia,descuentos,es
+Me gustaría conocer las condiciones del descuento para docentes.,Marketing,borrador_ia,descuentos,es
+El beneficio que recibí indica un máximo de ahorro; ¿cómo se calcula?,Marketing,borrador_ia,descuentos,es
+¿La rebaja anunciada se mantiene si cambio la fecha de compra?,Marketing,borrador_ia,descuentos,es
+¿El código promocional se puede compartir con otra persona?,Marketing,borrador_ia,cupones,es
+"Perdí el cupón que recibí al registrarme, ¿pueden enviármelo otra vez?",Marketing,borrador_ia,cupones,es
+¿Cuántas veces se puede usar el código de la campaña de verano?,Marketing,borrador_ia,cupones,es
+"El vale indica que es para nuevos clientes, ¿qué significa esa condición?",Marketing,borrador_ia,cupones,es
+¿Puedo guardar el cupón para usarlo en una compra futura?,Marketing,borrador_ia,cupones,es
+Introduje el código de la promoción y aparece que no reúne las condiciones.,Marketing,borrador_ia,cupones,es
+¿Dónde consulto la fecha de caducidad de mi vale promocional?,Marketing,borrador_ia,cupones,es
+El cupón que recibí menciona una compra mínima; ¿cuánto es?,Marketing,borrador_ia,cupones,es
+¿El código de aniversario es válido también para compras desde la aplicación?,Marketing,borrador_ia,cupones,es
+"Me llegó un vale con letras ilegibles, ¿cómo puedo confirmar el código?",Marketing,borrador_ia,cupones,es
+¿Hasta cuándo aceptan participaciones en el concurso de fotografías anunciado?,Marketing,borrador_ia,campanas,es
+Quiero consultar las bases del sorteo de la campaña de primavera.,Marketing,borrador_ia,campanas,es
+¿Cómo sabré si fui seleccionado para recibir un premio de la campaña?,Marketing,borrador_ia,campanas,es
+Participé en la dinámica de redes y quisiera verificar si mi inscripción cuenta.,Marketing,borrador_ia,campanas,es
+¿Es necesario publicar una foto para participar en la iniciativa promocional?,Marketing,borrador_ia,campanas,es
+¿La campaña de muestras gratuitas tiene restricciones de edad?,Marketing,borrador_ia,campanas,es
+¿Dónde anuncian a los ganadores del concurso de aniversario?,Marketing,borrador_ia,campanas,es
+El formulario de la campaña indica que quedan pocos premios; ¿cómo se asignan?,Marketing,borrador_ia,campanas,es
+¿Se puede participar en la campaña desde más de una red social?,Marketing,borrador_ia,campanas,es
+"Vi una colaboración promocional con otra marca, ¿qué incluye el beneficio?",Marketing,borrador_ia,campanas,es
+¿Mi invitado tiene que hacer una compra para que ambos recibamos el beneficio?,Marketing,borrador_ia,referidos,es
+"La persona que invité ya se registró, pero no veo reflejada mi invitación.",Marketing,borrador_ia,referidos,es
+¿Durante cuánto tiempo permanece activo mi enlace para invitar amigos?,Marketing,borrador_ia,referidos,es
+Quiero saber si el premio por recomendar tiene fecha de vencimiento.,Marketing,borrador_ia,referidos,es
+¿Puedo invitar a alguien que tuvo una cuenta anteriormente?,Marketing,borrador_ia,referidos,es
+Me registré con una invitación y no encuentro mi recompensa de bienvenida.,Marketing,borrador_ia,referidos,es
+¿Dónde reviso el historial de personas que aceptaron mi invitación?,Marketing,borrador_ia,referidos,es
+¿El programa de recomendaciones permite acumular varios beneficios?,Marketing,borrador_ia,referidos,es
+Envié una invitación equivocada; ¿puedo generar otro enlace?,Marketing,borrador_ia,referidos,es
+¿Qué condiciones debe cumplir una recomendación para que sea válida?,Marketing,borrador_ia,referidos,es
+¿Los puntos del club vencen si no los utilizo durante el año?,Marketing,borrador_ia,fidelizacion,es
+Quisiera consultar cuántos puntos necesito para canjear un beneficio.,Marketing,borrador_ia,fidelizacion,es
+¿Las compras anteriores a mi inscripción suman puntos de fidelidad?,Marketing,borrador_ia,fidelizacion,es
+Canjeé mis puntos y no recibí la confirmación del beneficio.,Marketing,borrador_ia,fidelizacion,es
+¿Cómo puedo subir de categoría en el programa para clientes frecuentes?,Marketing,borrador_ia,fidelizacion,es
+¿Los puntos acumulados se pueden compartir con otra persona?,Marketing,borrador_ia,fidelizacion,es
+El saldo de mi club disminuyó y quisiera conocer las reglas de vencimiento.,Marketing,borrador_ia,fidelizacion,es
+¿Qué pasa con mis beneficios del club si dejo de comprar unos meses?,Marketing,borrador_ia,fidelizacion,es
+¿Hay productos que no generan puntos en el programa de recompensas?,Marketing,borrador_ia,fidelizacion,es
+¿Dónde puedo consultar los movimientos de puntos de mi cuenta de fidelidad?,Marketing,borrador_ia,fidelizacion,es

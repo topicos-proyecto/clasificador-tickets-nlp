@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw" / "sid"
 OUT = ROOT / "data" / "processed" / "sid"
 MAPPING_PATH = ROOT / "data" / "sid_intent_map.json"
-BASE_URL = "https://huggingface.co/datasets/luigicfilho/sid/resolve/main/"
+SOURCE_PATH = ROOT / "data" / "sid_source.json"
 FILES = {
     "train": "train.csv",
     "validation": "val.csv",
@@ -33,20 +33,32 @@ PRIORITY = ("test", "validation_real", "validation", "train")
 COLUMNS = ("text", "department", "source", "intent", "language", "original_split")
 
 
-def download_file(filename: str, offline: bool) -> Path:
+def verify_sha256(path: Path, expected: str) -> None:
+    actual = sha256_file(path)
+    if actual != expected:
+        raise ValueError(
+            f"SHA-256 incorrecto para {path}: esperado {expected}, obtenido {actual}. "
+            "Conserva o mueve el archivo existente y vuelve a descargar la revisión fijada."
+        )
+
+
+def download_file(filename: str, offline: bool, source: dict) -> Path:
     RAW.mkdir(parents=True, exist_ok=True)
     path = RAW / filename
     if path.is_file():
+        verify_sha256(path, source["sha256"][filename])
         print(f"Usando archivo existente: {path}")
         return path
     if offline:
         raise FileNotFoundError(f"No existe {path}; descarga el archivo antes o quita --offline")
     print(f"Descargando {filename}...")
-    req = Request(BASE_URL + filename, headers={"User-Agent": "NLP-University-Data-Preparation/1.0"})
+    url = f'{source["source_url"]}/resolve/{source["revision"]}/{filename}'
+    req = Request(url, headers={"User-Agent": "NLP-University-Data-Preparation/1.0"})
     tmp = path.with_suffix(path.suffix + ".part")
     try:
         with urlopen(req, timeout=120) as response, tmp.open("wb") as out_file:
             shutil.copyfileobj(response, out_file)
+        verify_sha256(tmp, source["sha256"][filename])
         tmp.replace(path)
     finally:
         if tmp.exists():
@@ -144,9 +156,11 @@ def main() -> None:
     parser.add_argument("--offline", action="store_true", help="Usar CSV originales ya descargados")
     args = parser.parse_args()
     mapping = load_mapping()
+    source = json.loads(SOURCE_PATH.read_text(encoding="utf-8"))
 
-    paths = {split: download_file(name, args.offline) for split, name in FILES.items()}
-    paths["intents"] = download_file("intents.json", args.offline)
+    # Comprobar todos los originales antes de escribir cualquier archivo procesado.
+    paths = {split: download_file(name, args.offline, source) for split, name in FILES.items()}
+    paths["intents"] = download_file("intents.json", args.offline, source)
 
     # Verificar que las intenciones del mapeo existan en el catálogo publicado.
     catalog = json.loads(paths["intents"].read_text(encoding="utf-8"))
@@ -165,9 +179,9 @@ def main() -> None:
         print(f"{split}: {info['counts'].get('accepted_rows', 0)} filas aceptadas")
 
     manifest = {
-        "source_url": "https://huggingface.co/datasets/luigicfilho/sid",
-        "dataset_revision": "main (registrar SHA para congelar versión posteriormente)",
-        "license_declared": "MIT",
+        "source_url": source["source_url"],
+        "dataset_revision": source["revision"],
+        "license_declared": source["license_declared"],
         "downloaded_or_verified_at_utc": datetime.now(timezone.utc).isoformat(),
         "sha256": {name: sha256_file(path) for name, path in paths.items()},
     }

@@ -5,6 +5,7 @@
 - **Nombre:** SID — Synthetic Intent Dataset
 - **Autor:** Luigicfilho
 - **Ficha:** https://huggingface.co/datasets/luigicfilho/sid
+- **Revisión fijada:** `43fad0f7d60bd1dfb0402c8632deb2cbc13f4731`; las huellas SHA-256 de los cinco archivos se registran en `data/sid_source.json`.
 - **Licencia declarada:** MIT; conservar referencia y verificar cualquier cambio antes de distribuir datos.
 - **Formato:** CSV, campos `text`, `label`, `language`.
 - **Idiomas originales:** en, es, pt, de, fr.
@@ -48,7 +49,7 @@ Desde la raíz de este repositorio, con Python 3.10+:
 python src/data/prepare_sid.py
 ```
 
-Sin dependencias externas: usa la biblioteca estándar. Necesita conexión a internet solo para descargar los CSV originales de Hugging Face; también permite `--offline` si esos archivos ya están en `data/raw/sid/`.
+Sin dependencias externas: usa la biblioteca estándar. Necesita conexión a internet solo para descargar los CSV originales de Hugging Face; también permite `--offline` si esos archivos ya están en `data/raw/sid/`. Antes de preparar las particiones, verifica las huellas de todos los archivos descargados o reutilizados. Si un archivo no coincide, hay que conservarlo o moverlo fuera del directorio y descargar la revisión fijada.
 
 Genera:
 - `data/raw/sid/` CSV originales y `intents.json`.

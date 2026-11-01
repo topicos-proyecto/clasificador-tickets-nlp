@@ -153,6 +153,7 @@ activemq-data/
 .env
 .envrc
 .venv
+.venv312/
 env/
 venv/
 ENV/
@@ -232,3 +233,10 @@ node_modules/
 # Artefactos de modelos generados
 /artifacts/*.joblib
 /artifacts/*.pkl
+/artifacts/baseline/
+
+/artifacts/comparison/
+
+/artifacts/human_evaluation/
+
+/artifacts/comparison_customers/

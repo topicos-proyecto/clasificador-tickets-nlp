@@ -1,0 +1,31 @@
+text,department,source,intent,language
+¿La oferta del día de la madre también sirve para compras en línea?,Marketing,borrador_ia,promociones,es
+"Vi un anuncio con un regalo por registrarse, ¿cómo lo solicito?",Marketing,borrador_ia,promociones,es
+Quiero saber si todavía puedo participar en la promoción del fin de semana.,Marketing,borrador_ia,promociones,es
+¿Dónde veo las bases de la oferta que anunciaron en la aplicación?,Marketing,borrador_ia,promociones,es
+La rebaja que figuraba en el anuncio no aparece al finalizar mi compra.,Marketing,borrador_ia,descuentos,es
+¿Puedo obtener el descuento para estudiantes con mi matrícula vigente?,Marketing,borrador_ia,descuentos,es
+Quiero saber si la oferta incluye accesorios además del producto principal.,Marketing,borrador_ia,descuentos,es
+Recibí un vale promocional pero no encuentro dónde introducirlo.,Marketing,borrador_ia,cupones,es
+Mi código de descuento dice que ya fue usado y yo no lo utilicé.,Marketing,borrador_ia,cupones,es
+¿Hay un monto mínimo para poder canjear el vale de bienvenida?,Marketing,borrador_ia,cupones,es
+Compré varias veces y no veo los puntos en mi cuenta de cliente.,Marketing,borrador_ia,fidelizacion,es
+¿Qué puedo canjear con los puntos que tengo acumulados?,Marketing,borrador_ia,fidelizacion,es
+¿Los beneficios del club de clientes tienen fecha de vencimiento?,Marketing,borrador_ia,fidelizacion,es
+Recomendé el servicio a un amigo y no recibí el beneficio prometido.,Marketing,borrador_ia,referidos,es
+¿Cómo sé si quedé inscrito en el sorteo que anunciaron?,Marketing,borrador_ia,campanas,es
+La aplicación se cierra apenas la abro en mi teléfono.,Soporte TI,borrador_ia,fallo_aplicacion,es
+Después de actualizar la app solo veo una pantalla en blanco.,Soporte TI,borrador_ia,fallo_aplicacion,es
+La aplicación se queda cargando y nunca llega al menú.,Soporte TI,borrador_ia,fallo_aplicacion,es
+Cuando intento abrir mi perfil la app deja de responder.,Soporte TI,borrador_ia,fallo_aplicacion,es
+Instalé la aplicación pero no puedo iniciarla en mi celular.,Soporte TI,borrador_ia,fallo_aplicacion,es
+Al abrir la app aparece un aviso de error y se cierra.,Soporte TI,borrador_ia,fallo_aplicacion,es
+Escribo mi contraseña correctamente pero la página no me deja entrar.,Soporte TI,borrador_ia,acceso,es
+No recibo el código de verificación para ingresar a mi cuenta.,Soporte TI,borrador_ia,acceso,es
+El enlace para recuperar mi contraseña me lleva a una página de error.,Soporte TI,borrador_ia,acceso,es
+La página no carga cuando intento revisar los servicios disponibles.,Soporte TI,borrador_ia,fallo_web,es
+En el sitio aparece un error al guardar los cambios de mi perfil.,Soporte TI,borrador_ia,fallo_web,es
+El botón para enviar mi consulta no hace nada cuando lo presiono.,Soporte TI,borrador_ia,fallo_formulario,es
+Intento completar el formulario y se borra la información que escribí.,Soporte TI,borrador_ia,fallo_formulario,es
+La página muestra un error técnico cuando intento llegar al formulario de pago.,Soporte TI,borrador_ia,fallo_pago_tecnico,es
+Al descargar mi factura la aplicación se bloquea y se cierra.,Soporte TI,borrador_ia,fallo_factura_tecnico,es

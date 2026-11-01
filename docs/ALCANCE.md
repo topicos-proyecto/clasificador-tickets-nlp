@@ -3,6 +3,8 @@
 ## Finalidad
 Proyecto académico para **aprender y demostrar el pipeline NLP** exigido en el Proyecto Integrador de Tópicos y Programación Avanzada. El caso de uso es clasificar mensajes de soporte de una **empresa genérica** por departamento de atención inicial.
 
+El alcance actual comprende **solicitudes de clientes**. Las tareas internas de empleados, como gestionar campañas o pedir reportes publicitarios, quedan fuera de esta versión; se conservan las evaluaciones anteriores como antecedentes y no como medidas específicas de este alcance.
+
 ## Decisiones aprobadas
 - **Seis categorías:** Soporte TI, Finanzas, Ventas, Marketing, Atención al Cliente y Logística.
 - **Dataset mixto:** registros de un dataset público, tras verificar licencia, idioma y compatibilidad, y ejemplos propios etiquetados por el equipo.
@@ -36,6 +38,7 @@ Estos criterios son **convenciones de enrutamiento** y no diagnósticos de causa
 - Pruebas, documentación y Git colaborativo verificable.
 
 ## Excluido
+- Clasificación de solicitudes internas de empleados.
 - Integración real con WhatsApp, correo o herramientas empresariales.
 - Diagnóstico de fallos, generación de reembolsos o ejecución de acciones externas.
 - Clasificación automática de prioridad, múltiples etiquetas por ticket y NER avanzado.
