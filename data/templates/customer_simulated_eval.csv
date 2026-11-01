@@ -1,0 +1,25 @@
+text,department,source,intent,language
+"Vi una oferta en su página, ¿hasta cuándo está disponible?",Marketing,borrador_ia,promociones,es
+Intenté usar el código que recibí al registrarme y dice que no es válido.,Marketing,borrador_ia,cupones,es
+¿Cómo cambio los puntos de mi cuenta por un beneficio?,Marketing,borrador_ia,fidelizacion,es
+Mi hermana se registró con mi invitación y no veo la recompensa.,Marketing,borrador_ia,referidos,es
+Cada vez que abro la aplicación se queda en blanco y no avanza.,Soporte TI,borrador_ia,fallo_aplicacion,es
+La web no acepta mi contraseña aunque la cambié ayer.,Soporte TI,borrador_ia,acceso,es
+Presiono enviar en el formulario y la página no responde.,Soporte TI,borrador_ia,fallo_formulario,es
+Al iniciar sesión veo un mensaje de error en lugar de mi cuenta.,Soporte TI,borrador_ia,fallo_web,es
+Necesito una factura por el cobro de este mes.,Finanzas,borrador_ia,factura,es
+Me descontaron el pago dos veces de mi tarjeta.,Finanzas,borrador_ia,cobro,es
+¿Cuándo recibiré el dinero de mi devolución?,Finanzas,borrador_ia,reembolso,es
+No encuentro el recibo del pago que hice ayer.,Finanzas,borrador_ia,recibo,es
+Quiero saber cuánto cuesta el plan para mi negocio.,Ventas,borrador_ia,precios,es
+¿Me pueden cotizar tres equipos con sus accesorios?,Ventas,borrador_ia,cotizacion,es
+¿Qué diferencia hay entre el plan básico y el premium?,Ventas,borrador_ia,caracteristicas,es
+¿Tienen disponible el producto en color azul?,Ventas,borrador_ia,disponibilidad,es
+¿Atienden por teléfono los domingos?,Atención al Cliente,borrador_ia,horarios,es
+¿Por qué medio puedo hablar con un asesor?,Atención al Cliente,borrador_ia,contacto,es
+Necesito saber dónde puedo presentar una consulta general.,Atención al Cliente,borrador_ia,orientacion,es
+¿En qué dirección está la tienda de esta ciudad?,Atención al Cliente,borrador_ia,ubicacion,es
+¿Dónde puedo seguir el recorrido de mi paquete?,Logística,borrador_ia,seguimiento,es
+Mi pedido figura en camino desde hace varios días y no llega.,Logística,borrador_ia,entrega,es
+¿Cuánto tarda el envío a otra ciudad?,Logística,borrador_ia,envio,es
+Necesito corregir la dirección donde recibiré mi compra.,Logística,borrador_ia,direccion,es

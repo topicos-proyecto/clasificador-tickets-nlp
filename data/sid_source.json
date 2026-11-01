@@ -1,0 +1,12 @@
+{
+  "source_url": "https://huggingface.co/datasets/luigicfilho/sid",
+  "revision": "43fad0f7d60bd1dfb0402c8632deb2cbc13f4731",
+  "license_declared": "MIT",
+  "sha256": {
+    "train.csv": "e78b6c331e4c254d5504b9de671284f88cb7e1d0dce8a4502c7686e9d59cc1eb",
+    "val.csv": "12790954dc9fe9153181fd476c8811301a97761d30117987f6cef6a79b290ce7",
+    "val_real.csv": "a1d4d950ace27c2669f414ee24d4e89f756951044f5c4b3e783ef146ec41d5c8",
+    "test.csv": "ca5b100fd9828b1aed7de032d997b1203bc7e07e8f6594dab3498763b4a4a157",
+    "intents.json": "02191bd7e9fea185f25b71d5f78b071f7cb7896430fcacaf966f09426b3fe420"
+  }
+}
