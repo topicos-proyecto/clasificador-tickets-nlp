@@ -49,7 +49,7 @@ Las carpetas se agregarán al comenzar su implementación; no se crean directori
 1. Separar datos de prueba antes de ajustar cualquier transformador.
 2. Probar stemming frente a lematización manteniendo constante lo demás.
 3. Comparar `ngram_range=(1,1)` frente a `(1,2)`.
-4. Ajustar hiperparámetros en validación cruzada del entrenamiento (sin tocar prueba).
+4. Ajustar hiperparámetros en validación cruzada del entrenamiento (sin tocar prueba): `alpha` en Naive Bayes; `C` y `class_weight` en Regresión Logística; barrido opcional de `min_df`/`max_df` (`--tfidf-grid`). La selección usa la regla de una desviación estándar. Detalle en [ANALISIS_ERRORES.md](ANALISIS_ERRORES.md).
 5. Comparar Naive Bayes frente a Regresión Logística por F1-macro y métricas por clase.
 6. Evaluar una sola vez la configuración elegida en prueba; registrar errores y reproducibilidad.
 

@@ -90,11 +90,24 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m src.models.compare \
   --output-dir artifacts/comparison_customers
 ```
 
-La comparación prueba stemming y lematización, unigramas y bigramas, y dos valores de hiperparámetros por modelo. Usa validación cruzada estratificada de tres particiones sobre entrenamiento, con semilla 42; TF-IDF se ajusta dentro de cada partición. Guarda el pipeline seleccionado, parámetros, versiones, huellas, F1 por clase y matriz de confusión. Los artefactos locales existentes en el directorio de salida se pueden sobrescribir: usar otro `--output-dir` si se desea conservarlos.
+La comparación prueba stemming y lematización, unigramas y bigramas, Naive Bayes (`alpha ∈ {0,01; 0,03; 0,1; 0,3; 0,5; 1,0}`) y Regresión Logística (`C ∈ {0,1; 1; 10; 30; 100}` con y sin `class_weight='balanced'`): 64 configuraciones. Usa validación cruzada estratificada de tres particiones sobre entrenamiento, con semilla 42; TF-IDF se ajusta dentro de cada partición. Se elige con la **regla de una desviación estándar**: entre las configuraciones cuya media de F1 macro no queda por debajo de la mejor menos su desviación, la más simple (unigramas, Naive Bayes, mayor regularización, sin pesos, stemming). Opciones: `--tfidf-grid` (barrido de `min_df`/`max_df` sobre la elegida), `--grouped-cv` (sensibilidad con CV agrupado por intención SID) y `--overwrite`. **Si `--output-dir` ya contiene `pipeline.joblib`, la ejecución se aborta** salvo `--overwrite`. Guarda el pipeline seleccionado, parámetros, versiones, huellas, F1 por clase, matriz de confusión y la comparación pareada NB frente a LR.
+
+Para analizar los errores de un pipeline sin tocar `test`:
+
+```bash
+python -m src.models.analyze_errors --model artifacts/comparison_customers_v2/pipeline.joblib \
+  --dataset validacion=data/processed/model_customers/validation.csv \
+  --dataset simulado=data/templates/customer_simulated_eval.csv \
+  --compare-with artifacts/comparison_customers/pipeline.joblib
+```
+
+Genera `error_analysis.json`, `error_analysis.md` y `error_review.csv` (para anotar a mano el motivo de cada error). `--redact-text` omite textos y términos; el comando rechaza cualquier archivo `test*.csv` o con la huella de `test`. Las causas son heurísticas. Resultados y lectura en [Análisis de errores](docs/ANALISIS_ERRORES.md).
 
 ## Evaluación y resultados actuales
 
 En la comparación orientada a clientes, la configuración seleccionada fue **Naive Bayes con lematización, unigramas y `alpha=0,5`**. Obtuvo F1 macro medio de **0,9585** en validación cruzada y **0,9452** en la validación SID. La validación contiene solo cuatro ejemplos de Marketing y puede haber variantes similares dentro de entrenamiento, por lo que estas cifras no demuestran generalización a clientes reales.
+
+**Rejilla ampliada (noviembre de 2026, sin promover).** Con la rejilla de 64 configuraciones, la selección por la regla de una desviación estándar es **Naive Bayes con lematización, unigramas y `alpha=0,1`** (F1 macro CV 0,9689; validación SID 0,9572). La mejor Regresión Logística (stemming, unigramas, `C=30`, `balanced`) obtiene 0,9715, una diferencia de 0,0019 con el mejor NB, menor que la desviación (0,0033). Este modelo está en `artifacts/comparison_customers_v2/` y **no reemplaza** al artefacto que usa el backend. Las demás cifras de esta sección corresponden al modelo anterior (`comparison_customers`). Ver [Análisis de errores](docs/ANALISIS_ERRORES.md).
 
 Como pruebas adicionales, el modelo acertó **18 de 24** mensajes simulados con IA y **18 de 30** mensajes escritos por personas desde la perspectiva de clientes. El F1 macro de la evaluación humana fue **0,5952**; hay solo entre tres y siete mensajes por área. Estos conjuntos y la validación SID son distintos, de modo que sus cifras no deben compararse directamente como si midieran la misma población.
 

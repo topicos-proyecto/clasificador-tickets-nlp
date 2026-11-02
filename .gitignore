@@ -240,3 +240,5 @@ node_modules/
 /artifacts/human_evaluation/
 
 /artifacts/comparison_customers/
+
+/artifacts/comparison_customers_v2/
