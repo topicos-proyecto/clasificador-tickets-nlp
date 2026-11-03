@@ -1,4 +1,4 @@
-# Arquitectura inicial y flujo de aprendizaje
+# Arquitectura y flujo de aprendizaje
 
 ## Cinco capas obligatorias
 
@@ -21,13 +21,13 @@ El entrenamiento guarda un **pipeline completo de transformación y clasificaci�
 
 ## Organización en GitHub
 
-El workspace local separa `clasificador-tickets-nlp` (datos y modelos), `clasificador-backend` (API) y `clasificador-frontend` (interfaz). El backend importa el código NLP y carga sus artefactos desde `clasificador-tickets-nlp`, sin duplicar el pipeline. Las carpetas nuevas todavía no se inicializaron como repositorios Git.
+El workspace local separa tres repositorios Git: `clasificador-tickets-nlp` (datos y modelos), `clasificador-backend` (API) y `clasificador-frontend` (interfaz). El backend importa el código NLP y carga sus artefactos desde `clasificador-tickets-nlp`, sin duplicar el pipeline.
 
-La organización `topicos-proyecto` contempla **cuatro repositorios**. El reparto definitivo entre repositorios está pendiente de asignación; el diagrama siguiente representa **capas y rutas de código lógicas**, no una obligación de alojarlas todas en este repositorio. Se requiere una integración reproducible entre componentes y un pipeline NLP idéntico al de entrenamiento.
+Los tres repositorios pertenecen a `topicos-proyecto`. Los aportes por integrante y sus enlaces verificables están en [CONTRIBUCIONES.md](../CONTRIBUCIONES.md). Las capas del diagrama representan rutas y responsabilidades lógicas, y no repositorios adicionales.
 
-**Advertencia académica:** el PDF pide un solo repositorio por grupo; el uso de cuatro necesita validación del docente.
+**Organización aprobada:** aunque la consigna propone un solo repositorio, el equipo confirmó la aprobación del docente para usar varios. [ENTREGA.md](ENTREGA.md) documenta cómo identificar las versiones coordinadas.
 
-## Estructura lógica prevista
+## Estructura lógica
 ```text
 data/raw/public/
 data/raw/custom/
@@ -43,7 +43,7 @@ docs/
 README.md
 CONTRIBUCIONES.md
 ```
-Las carpetas se agregarán al comenzar su implementación; no se crean directorios vacíos porque Git no los rastrea.
+Los datos crudos, procesados y artefactos son locales y están excluidos de Git; el código y las instrucciones de generación sí se versionan.
 
 ## Experimentos
 1. Separar datos de prueba antes de ajustar cualquier transformador.
@@ -74,4 +74,4 @@ Persistencia: SQLite con el módulo estándar. Detalle en el README del backend.
 Los mensajes sin solicitud suficiente no fuerzan una clasificación. Cualquier regla de rechazo o umbral (`UMBRAL_REVISION`) es provisional, porque las probabilidades no están calibradas.
 
 ## Dependencias
-Python + scikit-learn + herramientas NLP de español (NLTK/spaCy), FastAPI y React. Versiones definitivas pendientes de fijar durante implementación. No se asumen prestaciones de latencia o exactitud sin medir.
+Python 3.12 + scikit-learn + herramientas NLP de español (NLTK/spaCy), FastAPI y React. Las versiones están fijadas en los archivos de dependencias de cada repositorio. Los costos medidos y las limitaciones de las métricas están en [COMPARACION_MODELOS.md](COMPARACION_MODELOS.md).
