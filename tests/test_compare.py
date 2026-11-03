@@ -1,10 +1,11 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 
-from src.models.compare import (GRID, LABELS, best_by_mean, choose_tfidf, classifier, compare,
-                                configurations, key, paired_comparison, pretokenized_vectorizer,
-                                select, vectorizer)
+from src.models.compare import (GRID, LABELS, MODELS, best_by_mean, choose_tfidf, classifier, compare,
+                                configurations, evaluation, finalists, key, paired_comparison,
+                                pairwise_comparisons, pretokenized_vectorizer, select, variants, vectorizer)
 from src.nlp.preprocessing import SpanishTokenizer
 
 
@@ -45,18 +46,24 @@ def test_stratified_comparison_is_complete_and_reproducible():
     first = compare(texts, labels)
     second = compare(texts, labels)
     assert first == second
-    assert len(first) == len(configurations()) == 4 * (len(GRID['naive_bayes']) + len(GRID['logistic_regression']))
-    assert all(r['status'] == 'ok' and len(r['fold_f1_macro']) == 3 for r in first)
+    assert len(first) == len(configurations()) == 4 * sum(len(GRID[m]) for m in MODELS) == 120
+    # Con 12 filas de entrenamiento por fold, KNN con k > 12 no es posible y se marca como fallida.
+    feasible = [r for r in first if r['model'] != 'knn' or r['parameter_value'] <= 12]
+    assert all(r['status'] == 'ok' and len(r['fold_f1_macro']) == 3 for r in feasible)
+    assert all(r['status'] == 'failed' for r in first if r not in feasible)
     assert select(first) == select(second)
     assert isinstance(classifier('naive_bayes', 1), MultinomialNB)
     assert isinstance(classifier('logistic_regression', 1), LogisticRegression)
+    assert {r['model'] for r in first} == set(MODELS)
 
 
 def test_grid_expands_without_duplicates():
     configs = configurations()
     assert len({key(c) for c in configs}) == len(configs)
-    per_model = {m: sum(c['model'] == m for c in configs) for m in ('naive_bayes', 'logistic_regression')}
-    assert per_model == {'naive_bayes': 4 * len(GRID['naive_bayes']), 'logistic_regression': 4 * len(GRID['logistic_regression'])}
+    per_model = {m: sum(c['model'] == m for c in configs) for m in MODELS}
+    assert per_model == {m: 4 * len(GRID[m]) for m in MODELS}
+    assert per_model['knn'] == 56
+    assert {c['weights'] for c in configs if c['model'] == 'knn'} == {'uniform', 'distance'}
     assert {c['class_weight'] for c in configs if c['model'] == 'logistic_regression'} == {None, 'balanced'}
     assert all(c['class_weight'] is None for c in configs if c['model'] == 'naive_bayes')
 
@@ -67,10 +74,21 @@ def test_classifier_respects_c_and_class_weight():
     assert classifier('logistic_regression', 1.0).class_weight is None
 
 
-def result(model, mean, std=0.01, value=1.0, ngrams=1, method='stemming', weight=None, status='ok'):
+def test_knn_classifier_uses_cosine_and_weights():
+    model = classifier('knn', 5, weights='distance')
+    assert isinstance(model, KNeighborsClassifier)
+    assert model.n_neighbors == 5 and model.metric == 'cosine' and model.weights == 'distance'
+    assert classifier('knn', 3).weights == 'uniform'
+
+
+PARAM = {'naive_bayes': 'alpha', 'logistic_regression': 'C', 'knn': 'n_neighbors'}
+
+
+def result(model, mean, std=0.01, value=1.0, ngrams=1, method='stemming', weight=None, status='ok',
+           weights=None):
     return {'method': method, 'ngrams': ngrams, 'model': model,
-            'parameter_name': 'alpha' if model == 'naive_bayes' else 'C', 'parameter_value': value,
-            'class_weight': weight, 'fold_f1_macro': [mean] * 3, 'errors': [], 'status': status,
+            'parameter_name': PARAM[model], 'parameter_value': value,
+            'class_weight': weight, 'weights': weights, 'fold_f1_macro': [mean] * 3, 'errors': [], 'status': status,
             'f1_macro_mean': mean if status == 'ok' else None, 'f1_macro_std': std if status == 'ok' else None}
 
 
@@ -93,6 +111,49 @@ def test_selection_tiebreaks_among_candidates():
     weighted = result('logistic_regression', 0.970, value=10.0, weight='balanced')
     bigram = result('logistic_regression', 0.971, value=10.0, ngrams=2)
     assert select([heavy, light, weighted, bigram]) is light
+
+
+def test_selection_prefers_nb_over_knn_and_larger_k():
+    nb = result('naive_bayes', 0.960, value=0.5)
+    knn = result('knn', 0.965, value=5, weights='distance')
+    assert select([knn, nb]) is nb
+    small_k = result('knn', 0.970, value=1)
+    large_k = result('knn', 0.968, value=25)
+    distance = result('knn', 0.970, value=25, weights='distance')
+    assert select([small_k, large_k, distance]) is large_k
+
+
+def test_pairwise_comparisons_cover_all_model_pairs():
+    rows = [result('naive_bayes', 0.95, value=0.5), result('logistic_regression', 0.97, value=30.0),
+            result('knn', 0.93, value=5)]
+    pairs = pairwise_comparisons(rows)
+    assert [(p['a'], p['b']) for p in pairs] == [('naive_bayes', 'logistic_regression'),
+                                                  ('naive_bayes', 'knn'), ('logistic_regression', 'knn')]
+    assert abs(pairs[1]['mean_difference'] - 0.02) < 1e-12
+    assert {v['model'] for v in variants(rows)} == set(MODELS)
+
+
+def test_evaluation_contains_per_class_metrics_and_matrix():
+    metrics = evaluation(['Finanzas', 'Marketing', 'Marketing'], ['Finanzas', 'Ventas', 'Marketing'])
+    assert metrics['records'] == 3 and abs(metrics['accuracy'] - 2 / 3) < 1e-12
+    assert metrics['classification_report']['Marketing']['support'] == 2
+    assert len(metrics['confusion_matrix']) == 6 and metrics['confusion_matrix_labels'] == LABELS
+
+
+def test_finalists_have_three_models_with_required_metrics():
+    words = ['ayuda horario', 'factura pago', 'envío paquete', 'oferta cupón',
+             'error aplicación', 'precio compra']
+    texts = [f'{word} mensaje {n}' for word in words for n in range(3)]
+    labels = [label for label in LABELS for _ in range(3)]
+    results = compare(texts, labels)
+    selected = {**select(results), 'min_df': 1, 'max_df': 1.0}
+    metrics, models = finalists(results, selected, texts, labels, {'validation': (texts, labels)})
+    assert set(metrics) == set(models) == set(MODELS)
+    assert sum(m['is_selected'] for m in metrics.values()) == 1
+    for entry in metrics.values():
+        assert {'config', 'cv', 'validation', 'cost', 'vocabulary_size'} <= set(entry)
+        assert entry['cv']['out_of_fold']['records'] == len(texts)
+        assert {'fit_seconds', 'predict_ms_per_1000_pipeline', 'artifact_bytes'} <= set(entry['cost'])
 
 
 def test_selection_excludes_failed_configurations():
@@ -144,9 +205,11 @@ def test_command_reads_only_train_and_validation(tmp_path, monkeypatch):
     monkeypatch.setattr(module, 'DATA', data)
     monkeypatch.setattr(module, 'compare', lambda texts, labels, **kwargs: [selected])
     monkeypatch.setattr(module, 'load_data', record_load)
-    monkeypatch.setattr(sys, 'argv', ['compare', '--output-dir', str(tmp_path / 'out')])
+    monkeypatch.setattr(sys, 'argv', ['compare', '--output-dir', str(tmp_path / 'out'),
+                                      '--simulated', str(tmp_path / 'sin_simulado.csv')])
     module.main()
     assert paths == ['train.csv', 'validation.csv']
+    assert not any(name.startswith('test') for name in paths)
     report = json.loads((tmp_path / 'out/report.json').read_text(encoding='utf-8'))
     assert report['test_used'] is False
     for field in ('model', 'method', 'ngrams', 'parameter_name', 'parameter_value', 'f1_macro_mean', 'f1_macro_std'):

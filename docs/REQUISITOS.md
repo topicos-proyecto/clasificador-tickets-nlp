@@ -22,6 +22,7 @@ Lista basada en **Proyecto Integrador – Primer Parcial**, Tópicos y Programac
 ## Modelos y análisis
 - [ ] Entrenar Multinomial Naive Bayes.
 - [ ] Entrenar Regresión Logística.
+- [x] Entrenar KNN como tercer modelo de comparación (ver `COMPARACION_MODELOS.md`).
 - [ ] Comparar ambos y justificar la selección para uso en la API.
 - [ ] Ejecutar ajuste de hiperparámetros con validación cruzada en al menos uno.
 - [ ] Reportar métricas de clasificación por clase (incluyendo F1), matriz de confusión y comparación.
