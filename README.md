@@ -82,15 +82,41 @@ python -m src.models.train
 
 La referencia lee `train.csv` y `validation.csv` y escribe el pipeline y sus métricas en `artifacts/baseline/`. También admite `--method lemmatization`, `--ngrams 2` y `--output-dir`. El comando interactivo `python -m src.models.predict_cli` carga esa referencia y permite probar mensajes en terminal.
 
-Para comparar Naive Bayes y Regresión Logística con las particiones orientadas a clientes:
+Para comparar **Naive Bayes, Regresión Logística y KNN** con las particiones orientadas a clientes:
 
 ```bash
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m src.models.compare \
   --data-dir data/processed/model_customers \
-  --output-dir artifacts/comparison_customers
+  --output-dir artifacts/comparison_customers_v3 --grouped-cv
+python -m src.data.dataset_stats            # distribución de clases y longitudes (solo agregados)
+python -m src.models.evaluate_test          # evaluación ÚNICA en test, después de fijar la selección
+python -m src.models.render_comparison_report   # genera docs/COMPARACION_MODELOS.md
 ```
 
-La comparación prueba stemming y lematización, unigramas y bigramas, Naive Bayes (`alpha ∈ {0,01; 0,03; 0,1; 0,3; 0,5; 1,0}`) y Regresión Logística (`C ∈ {0,1; 1; 10; 30; 100}` con y sin `class_weight='balanced'`): 64 configuraciones. Usa validación cruzada estratificada de tres particiones sobre entrenamiento, con semilla 42; TF-IDF se ajusta dentro de cada partición. Se elige con la **regla de una desviación estándar**: entre las configuraciones cuya media de F1 macro no queda por debajo de la mejor menos su desviación, la más simple (unigramas, Naive Bayes, mayor regularización, sin pesos, stemming). Opciones: `--tfidf-grid` (barrido de `min_df`/`max_df` sobre la elegida), `--grouped-cv` (sensibilidad con CV agrupado por intención SID) y `--overwrite`. **Si `--output-dir` ya contiene `pipeline.joblib`, la ejecución se aborta** salvo `--overwrite`. Guarda el pipeline seleccionado, parámetros, versiones, huellas, F1 por clase, matriz de confusión y la comparación pareada NB frente a LR.
+La comparación prueba stemming y lematización, unigramas y bigramas, y tres modelos:
+
+- Naive Bayes: `alpha ∈ {0,01; 0,03; 0,1; 0,3; 0,5; 1,0}`.
+- Regresión Logística: `C ∈ {0,1; 1; 10; 30; 100}`, con y sin `class_weight='balanced'`.
+- KNN con distancia coseno: `k ∈ {1; 3; 5; 7; 11; 15; 25}`, con pesos `uniform` o `distance`.
+
+En total son 120 configuraciones. Se usa validación cruzada estratificada de tres particiones sobre entrenamiento, con semilla 42; TF-IDF se ajusta dentro de cada partición.
+
+La selección sigue la **regla de una desviación estándar**: entre las configuraciones cuya media de F1 macro no queda por debajo de la mejor menos su desviación, se elige la más simple. El orden de simplicidad es:
+
+1. unigramas;
+2. Naive Bayes, luego Regresión Logística y luego KNN;
+3. mayor regularización;
+4. sin pesos;
+5. stemming.
+
+Para la mejor configuración de cada modelo, `report.json` guarda:
+
+- las métricas fuera de partición del CV;
+- validación, validación adicional y el conjunto simulado (exploratorio);
+- métricas por clase y matriz de confusión;
+- costo y diferencias pareadas.
+
+Los pipelines finalistas quedan en `finalists/`. Opciones: `--tfidf-grid`, `--grouped-cv` y `--overwrite`. **Si `--output-dir` ya contiene `pipeline.joblib`, la ejecución se aborta** salvo con `--overwrite`. `evaluate_test.py` se niega a ejecutarse dos veces sobre el mismo directorio.
 
 Para analizar los errores de un pipeline sin tocar `test`:
 
@@ -105,9 +131,15 @@ Genera `error_analysis.json`, `error_analysis.md` y `error_review.csv` (para ano
 
 ## Evaluación y resultados actuales
 
-En la comparación orientada a clientes, la configuración seleccionada fue **Naive Bayes con lematización, unigramas y `alpha=0,5`**. Obtuvo F1 macro medio de **0,9585** en validación cruzada y **0,9452** en la validación SID. La validación contiene solo cuatro ejemplos de Marketing y puede haber variantes similares dentro de entrenamiento, por lo que estas cifras no demuestran generalización a clientes reales.
+**Comparación de tres modelos (v3, `artifacts/comparison_customers_v3/`, modelo que usa el backend).** La regla de una desviación estándar elige **Naive Bayes con lematización, unigramas y `alpha=0,1`**:
 
-**Rejilla ampliada (noviembre de 2026, sin promover).** Con la rejilla de 64 configuraciones, la selección por la regla de una desviación estándar es **Naive Bayes con lematización, unigramas y `alpha=0,1`** (F1 macro CV 0,9689; validación SID 0,9572). La mejor Regresión Logística (stemming, unigramas, `C=30`, `balanced`) obtiene 0,9715, una diferencia de 0,0019 con el mejor NB, menor que la desviación (0,0033). Este modelo está en `artifacts/comparison_customers_v2/` y **no reemplaza** al artefacto que usa el backend. Las demás cifras de esta sección corresponden al modelo anterior (`comparison_customers`). Ver [Análisis de errores](docs/ANALISIS_ERRORES.md).
+- **Naive Bayes:** F1 macro CV 0,9689 ± 0,0033; validación SID 0,9572.
+- **Regresión Logística** (stemming, `C=30`, `balanced`): obtiene la mejor media, 0,9715. La diferencia con NB es menor que una desviación estándar.
+- **KNN** (`k=5`, `distance`): queda claramente por debajo, con 0,9335. Es el que más cae con intenciones no vistas (CV agrupado 0,34).
+
+En la evaluación única en `test`, posterior a la selección, el F1 macro fue: NB 0,9586, LR 0,9597 y KNN 0,9101. La justificación completa, con tablas por clase y matrices de confusión, está en [Comparación de modelos](docs/COMPARACION_MODELOS.md).
+
+Las cifras de los párrafos siguientes corresponden al modelo anterior (`comparison_customers`, NB `alpha=0,5`). Ese modelo sigue disponible con `MODEL_DIR=artifacts/comparison_customers` en el backend.
 
 Como pruebas adicionales, el modelo acertó **18 de 24** mensajes simulados con IA y **18 de 30** mensajes escritos por personas desde la perspectiva de clientes. El F1 macro de la evaluación humana fue **0,5952**; hay solo entre tres y siete mensajes por área. Estos conjuntos y la validación SID son distintos, de modo que sus cifras no deben compararse directamente como si midieran la misma población.
 

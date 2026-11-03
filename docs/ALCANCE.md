@@ -8,7 +8,7 @@ El alcance actual comprende **solicitudes de clientes**. Las tareas internas de 
 ## Decisiones aprobadas
 - **Seis categorías:** Soporte TI, Finanzas, Ventas, Marketing, Atención al Cliente y Logística.
 - **Dataset mixto:** registros de un dataset público, tras verificar licencia, idioma y compatibilidad, y ejemplos propios etiquetados por el equipo.
-- **Dos modelos:** Multinomial Naive Bayes y Regresión Logística; el ganador se elige después de evaluarlos.
+- **Tres modelos:** Multinomial Naive Bayes, Regresión Logística y KNN; el ganador se elige con una regla fijada antes de evaluarlos ([Comparación de modelos](COMPARACION_MODELOS.md)).
 - **Salida:** departamento y probabilidad estimada, junto con visualización del preprocesamiento; no se promete resolver el incidente.
 - **Arquitectura:** datos, NLP, modelos, backend REST y frontend web.
 
@@ -35,6 +35,7 @@ Estos criterios son **convenciones de enrutamiento** y no diagnósticos de causa
 - Experimentos comparativos de variantes y dos modelos; validación cruzada, métricas y análisis de errores.
 - Pipeline reproducible serializado.
 - API REST (predicción, métricas, estado) e interfaz React con explicación de procesamiento.
+- Simulación del flujo de soporte: página pública `/soporte`, enrutamiento del ticket al área predicha con notificación al área completa y panel administrativo (áreas, empleados, asignación y estados). El bot no conversa con el cliente.
 - Pruebas, documentación y Git colaborativo verificable.
 
 ## Excluido

@@ -9,11 +9,11 @@ Dataset mixto (público + propio)
             ├── normalización + tokenización + stop words
             ├── stemming O lematización (ambos experimentados)
             └── TF-IDF (unigramas O unigramas+bigramas, comparados)
-                 └── Naive Bayes / Regresión Logística
+                 └── Naive Bayes / Regresión Logística / KNN
                       └── evaluación y selección
                            └── pipeline serializado
                                 └── FastAPI (carga artefacto)
-                                     └── React (predicción + pasos + métricas)
+                                     └── React (/soporte público + panel /admin: tickets, áreas, métricas)
 ```
 
 ## Regla principal
@@ -49,18 +49,29 @@ Las carpetas se agregarán al comenzar su implementación; no se crean directori
 1. Separar datos de prueba antes de ajustar cualquier transformador.
 2. Probar stemming frente a lematización manteniendo constante lo demás.
 3. Comparar `ngram_range=(1,1)` frente a `(1,2)`.
-4. Ajustar hiperparámetros en validación cruzada del entrenamiento (sin tocar prueba): `alpha` en Naive Bayes; `C` y `class_weight` en Regresión Logística; barrido opcional de `min_df`/`max_df` (`--tfidf-grid`). La selección usa la regla de una desviación estándar. Detalle en [ANALISIS_ERRORES.md](ANALISIS_ERRORES.md).
-5. Comparar Naive Bayes frente a Regresión Logística por F1-macro y métricas por clase.
+4. Ajustar hiperparámetros en validación cruzada del entrenamiento (sin tocar prueba): `alpha` en Naive Bayes; `C` y `class_weight` en Regresión Logística; `k` y `weights` en KNN (coseno); barrido opcional de `min_df`/`max_df` (`--tfidf-grid`). La selección usa la regla de una desviación estándar. Detalle en [ANALISIS_ERRORES.md](ANALISIS_ERRORES.md).
+5. Comparar Naive Bayes, Regresión Logística y KNN por F1-macro, métricas por clase, sensibilidad agrupada y costo.
 6. Evaluar una sola vez la configuración elegida en prueba; registrar errores y reproducibilidad.
 
 ## API implementada
-- `GET /health`: estado del modelo orientado a clientes y su SHA-256.
-- `GET /metrics`: métricas reales de la comparación (incluida la mejor configuración por modelo) y, si existe y corresponde al modelo, la evaluación humana; no expone los textos de evaluación.
-- `POST /predict`: recibe `{"text":"mensaje"}` y devuelve `label`, `probabilities`, `requires_clarification`, `reason` y `preprocessing` con las trazas del tokenizador del pipeline.
 
-La API carga `artifacts/comparison_customers/pipeline.joblib` al primer uso y verifica su huella en solicitudes posteriores. Si faltan el modelo o las métricas, cambian o no coinciden, responde con estado HTTP 503. Las entradas vacías, sin caracteres legibles, no textuales o mayores de 3000 caracteres reciben 422. Los saludos simples y textos sin términos en el vocabulario solicitan aclaración. No hay umbral de confianza calibrado.
+El backend (`clasificador-backend`) carga el pipeline de `MODEL_DIR` (por defecto `artifacts/comparison_customers_v3`) y verifica su huella SHA-256 en cada solicitud; si falta o cambió, responde 503.
 
-Los mensajes sin solicitud suficiente no deberían forzar una clasificación. Cualquier regla de rechazo, desambiguación o umbral es provisional y debe quedar probada y documentada.
+- `GET /health`, `POST /public/tickets` (públicos).
+- `POST /predict`, `GET /metrics`, `GET /metrics/models`, `GET /metrics/dataset`, `GET /metrics/test` (administrador).
+- `/admin/*`: dashboard, áreas, empleados, tickets y notificaciones (administrador, token HMAC).
+
+Flujo de un ticket:
+
+1. El cliente envía su mensaje en `/soporte` y recibe solo «Su consulta será atendida» y un código.
+2. El pipeline clasifica el mensaje.
+3. Si hay un área activa, se crea una notificación para el área completa con el nombre del cliente y el mensaje.
+4. Si no (saludo, sin términos conocidos, área inactiva o modelo no disponible), el ticket va a revisión manual.
+5. El administrador asigna el ticket a un empleado del área y gestiona sus estados.
+
+Persistencia: SQLite con el módulo estándar. Detalle en el README del backend.
+
+Los mensajes sin solicitud suficiente no fuerzan una clasificación. Cualquier regla de rechazo o umbral (`UMBRAL_REVISION`) es provisional, porque las probabilidades no están calibradas.
 
 ## Dependencias
 Python + scikit-learn + herramientas NLP de español (NLTK/spaCy), FastAPI y React. Versiones definitivas pendientes de fijar durante implementación. No se asumen prestaciones de latencia o exactitud sin medir.
