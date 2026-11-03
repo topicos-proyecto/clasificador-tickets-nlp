@@ -82,6 +82,66 @@ python -m src.models.train
 
 La referencia lee `train.csv` y `validation.csv` y escribe el pipeline y sus métricas en `artifacts/baseline/`. También admite `--method lemmatization`, `--ngrams 2` y `--output-dir`. El comando interactivo `python -m src.models.predict_cli` carga esa referencia y permite probar mensajes en terminal.
 
+### Clasificador de terminal
+
+La mejora de [`src/models/predict_cli.py`](src/models/predict_cli.py) permite elegir uno o varios modelos, inspeccionar sus probabilidades por área y explicar los pasos de preprocesamiento del mensaje. Antes, el comando solo cargaba la referencia `baseline` y mostraba el área sugerida.
+
+Para elegir otro pipeline ya entrenado, usar `--model`. En PowerShell, desde la carpeta `clasificador-tickets-nlp`, ejecutar con el entorno Python 3.12 del proyecto:
+
+```powershell
+.\.venv312\Scripts\python.exe -m src.models.predict_cli --model artifacts/comparison_customers/pipeline.joblib
+```
+
+Escribir `salir` para cerrar el clasificador. La ruta indicada en `--model` es relativa a la carpeta desde la que se ejecuta el comando.
+
+Cada consulta muestra el área sugerida, las probabilidades de todas las áreas (de mayor a menor) y los pasos del pipeline guardado: normalización, tokens, stop words retiradas, tokens conservados, stemming o lematización y cantidad de términos reconocidos por TF-IDF. Si no reconoce vocabulario, solicita más detalles sin asignar un área. Los saludos y textos vacíos también solicitan detalles.
+
+Para comparar varios modelos en una misma sesión, repetir `--model`. Cada mensaje se procesa con cada pipeline y al final aparece una tabla con el área y la probabilidad sugeridas por cada uno. Por ejemplo, **después de generar los finalistas v3** con la comparación del siguiente apartado:
+
+```powershell
+.\.venv312\Scripts\python.exe -m src.models.predict_cli `
+  --model artifacts/comparison_customers_v3/finalists/naive_bayes.joblib `
+  --model artifacts/comparison_customers_v3/finalists/logistic_regression.joblib `
+  --model artifacts/comparison_customers_v3/finalists/knn.joblib
+```
+
+Los archivos `.joblib` deben existir localmente; Git no descarga los artefactos entrenados. La traza se muestra por modelo porque sus métodos y vocabularios pueden ser distintos. Las probabilidades son estimaciones no calibradas: una cifra mayor no demuestra que un modelo sea mejor. Esta comparación de mensajes es exploratoria; no sustituye la evaluación con etiquetas y no modifica los modelos.
+
+#### Decisiones técnicas
+
+- `--model` es opcional y repetible. Sin argumentos se conserva `artifacts/baseline/pipeline.joblib`; con varias rutas, los modelos se cargan una sola vez al iniciar y reciben el mismo mensaje en cada consulta.
+- La traza procede de `tfidf.tokenizer.trace()` del artefacto. TF-IDF y el clasificador se reutilizan sin ejecutar `fit`, conservando el procesamiento y vocabulario aprendidos.
+- Las probabilidades se asocian a las etiquetas mediante `classifier.classes_`, se muestran como porcentajes ordenados y el área sugerida corresponde a la probabilidad máxima. Se admiten los pipelines del proyecto con Naive Bayes, Regresión Logística y KNN.
+- Cada modelo se identifica por su número, tipo de clasificador y ruta. La tabla final resume área y probabilidad e indica coincidencias, diferencias o modelos sin clasificación; no selecciona un ganador ni promociona artefactos al backend.
+- Un archivo ausente, corrupto o incompatible impide iniciar la sesión y devuelve código de salida 1. Un error al procesar un mensaje con un modelo se muestra sin impedir que los demás se ejecuten.
+- `salir`, fin de entrada y `Ctrl+C` cierran la sesión con código 0. Los saludos, entradas vacías y mensajes sin vocabulario reconocido solicitan más detalles.
+
+#### Verificación de la mejora
+
+Desde la raíz de este repositorio:
+
+```powershell
+.\.venv312\Scripts\python.exe -m pytest tests/test_predict_cli.py tests/test_pipeline.py -q
+```
+
+Resultado registrado durante la implementación: **21 pruebas aprobadas** (17 casos del clasificador de terminal y 4 del pipeline). Se verificaron probabilidades y etiquetas contra los pipelines serializados, comparación de los tres clasificadores en una sesión, stemming y lematización, conservación del vocabulario, uso del modelo predeterminado, mensajes fuera de vocabulario, archivos inválidos, interrupciones y continuidad ante el fallo de un modelo.
+
+Las pruebas de comparación entrenan modelos pequeños con ejemplos definidos en [`tests/test_predict_cli.py`](tests/test_predict_cli.py), guardados en directorios temporales. No usan datos privados, las particiones de evaluación ni los artefactos de producción. Se observaron advertencias de dependencias de spaCy/Click y SciPy (`iprint`), sin fallos de pruebas.
+
+También se realizó una prueba manual con `artifacts/comparison_customers/pipeline.joblib`: «No puedo ingresar a mi cuenta» mostró el área Soporte TI, seis probabilidades y la traza de lematización; «zzxyzzxy» no recibió clasificación. Esta comprobación verifica el funcionamiento de la herramienta, no la calidad general del modelo. La comparación con los tres finalistas v3 requiere que sus archivos estén disponibles localmente; su integración en el comando se verificó con los modelos temporales de las pruebas.
+
+#### Errores frecuentes
+
+| Mensaje o situación | Acción |
+|---|---|
+| `ModuleNotFoundError: No module named 'src'` | Ejecutar desde `clasificador-tickets-nlp`, no desde el backend. Si estás en `clasificador-backend`, usar `cd ..\clasificador-tickets-nlp`. |
+| Se ejecuta `C:\Python314\python.exe` u otro Python global | Usar explícitamente `.\.venv312\Scripts\python.exe` (Python 3.12). |
+| No se encontró el modelo | Comprobar la ruta con `Test-Path` y generar u obtener el `.joblib` correspondiente. No basta con descargar el código del repositorio. |
+| Se requiere un pipeline entrenado | Elegir un artefacto con los pasos `tfidf` y `classifier`, tokenizador con trazas y clasificador con `predict_proba`. |
+| Falta `es_core_news_sm` | Instalar el modelo español indicado en el apartado Instalación, dentro del mismo entorno Python. |
+
+### Comparación de modelos
+
 Para comparar **Naive Bayes, Regresión Logística y KNN** con las particiones orientadas a clientes:
 
 ```bash
