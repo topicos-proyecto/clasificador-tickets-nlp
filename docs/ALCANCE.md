@@ -32,7 +32,7 @@ Estos criterios son **convenciones de enrutamiento** y no diagnósticos de causa
 ## Incluido
 - EDA: distribución de clases, longitudes, términos frecuentes y faltantes.
 - Normalización, tokenización, stop words, stemming, lematización, n-gramas y TF-IDF.
-- Experimentos comparativos de variantes y dos modelos; validación cruzada, métricas y análisis de errores.
+- Experimentos comparativos de variantes y tres modelos; validación cruzada, métricas y análisis de errores.
 - Pipeline reproducible serializado.
 - API REST (predicción, métricas, estado) e interfaz React con explicación de procesamiento.
 - Simulación del flujo de soporte: página pública `/soporte`, enrutamiento del ticket al área predicha con notificación al área completa y panel administrativo (áreas, empleados, asignación y estados). El bot no conversa con el cliente.
@@ -45,8 +45,10 @@ Estos criterios son **convenciones de enrutamiento** y no diagnósticos de causa
 - Clasificación automática de prioridad, múltiples etiquetas por ticket y NER avanzado.
 - Chatbot conversacional complejo y deployment obligatorio en nube.
 
-## Pendientes reales
-- Elegir dataset(s) público(s) específico(s), registrar fuente, licencia y fecha; verificar cobertura de las seis etiquetas.
-- Establecer protocolo de etiquetado, revisión de desacuerdos, anonimización y remoción de duplicados.
-- Definir responsable y reparto del trabajo según integrantes efectivos.
-- Validar resultados y parámetros reales antes de fijar umbrales o afirmar precisión.
+## Estado y revisiones posteriores
+
+La fuente, licencia y fecha de selección están en [DATASET_SID.md](DATASET_SID.md). El protocolo y la procedencia de ejemplos propios están en [GUIA_DATASET_PROPIO.md](GUIA_DATASET_PROPIO.md). Los aportes verificables están en [CONTRIBUCIONES.md](../CONTRIBUCIONES.md), y los resultados v3 en [COMPARACION_MODELOS.md](COMPARACION_MODELOS.md).
+
+El docente aprobó usar varios repositorios, según la confirmación del equipo. El cierre documental, la presentación y las instrucciones de etiquetado están en [ENTREGA.md](ENTREGA.md).
+
+Las revisiones de etiquetas ambiguas y causas heurísticas de errores siguen requiriendo criterio humano. Los umbrales de confianza y las afirmaciones sobre rendimiento con clientes reales necesitan datos independientes; no se consideran resueltos por completar la documentación.

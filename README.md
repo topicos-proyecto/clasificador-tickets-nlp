@@ -210,7 +210,7 @@ python -m src.models.evaluate_simulated
 python -m src.models.evaluate_customer_human
 ```
 
-La evaluación humana comprueba las huellas del modelo y del conjunto congelado antes de ejecutarse. Para reproducirla, el equipo debe recibir por un canal privado `data/raw/custom/human_evaluation_clients_frozen.csv`, `data/raw/custom/human_evaluation_clients_manifest.json` y el `artifacts/comparison_customers/pipeline.joblib` correspondiente; las huellas del manifiesto deben coincidir. Estos archivos son locales y no se versionan. Si los resultados se usan para modificar o seleccionar un modelo, se necesitan otros mensajes humanos reservados para una evaluación independiente posterior. La evaluación final sobre `test` sigue pendiente. El detalle de los errores está en el informe local `artifacts/comparison_customers/human_clients_report.json`.
+La evaluación humana comprueba las huellas del modelo y del conjunto congelado antes de ejecutarse. Para reproducirla, el equipo debe recibir por un canal privado `data/raw/custom/human_evaluation_clients_frozen.csv`, `data/raw/custom/human_evaluation_clients_manifest.json` y el `artifacts/comparison_customers/pipeline.joblib` correspondiente; las huellas del manifiesto deben coincidir. Estos archivos son locales y no se versionan. Si los resultados se usan para modificar o seleccionar un modelo, se necesitan otros mensajes humanos reservados para una evaluación independiente posterior. Esta evaluación histórica es distinta de la evaluación final en `test` de v3, ya documentada en la comparación de modelos. El detalle de los errores está en el informe local `artifacts/comparison_customers/human_clients_report.json`.
 
 ## Pruebas y estructura
 
@@ -228,9 +228,18 @@ Las pruebas abarcan el procesamiento, la comparación, las particiones y la audi
 - `docs/`: alcance, fuentes, requisitos y análisis.
 - `tests/`: pruebas automatizadas del proyecto NLP.
 
-## Pendientes
+## Documentación y entrega
+
+- [Informe técnico](docs/INFORME_TECNICO.md): problema, dataset, decisiones, resultados, arquitectura y asistencia de IA.
+- [Contribuciones](CONTRIBUCIONES.md): Alvaro, AlexTiclla y juanse8202, según los autores reales de Git y sus commits/PR.
+- Diapositivas en [PDF](docs/PRESENTACION.pdf) y [HTML interactivo](docs/PRESENTACION.html), disponibles sin conexión.
+- [Cierre de entrega](docs/ENTREGA.md): revisión del PR documental y publicación coordinada de `entrega-final` después de integrarlo en `main`.
+
+El docente aprobó usar varios repositorios, según la confirmación del equipo. Los componentes actuales son NLP, backend y frontend, alojados por separado en `topicos-proyecto`.
+
+## Mejoras futuras
 
 - Revisar más ejemplos por clase, especialmente Marketing, y documentar casos ambiguos.
 - Ampliar y revisar datos de clientes con procedencia clara, sin duplicar textos entre entrenamiento y evaluación.
-- Mantener una evaluación humana independiente para futuras decisiones y, una vez fijado el modelo final, evaluar el conjunto `test` reservado.
-- Completar el informe técnico, el registro de contribuciones y la preparación de la defensa.
+- Mantener una evaluación humana independiente para futuras decisiones; no volver a elegir modelos con los resultados ya conocidos de `test`.
+- Ensayar la defensa y revisar los ejemplos ambiguos del análisis de errores.

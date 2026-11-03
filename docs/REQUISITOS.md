@@ -23,7 +23,7 @@ Lista basada en **Proyecto Integrador – Primer Parcial**, Tópicos y Programac
 - [ ] Entrenar Multinomial Naive Bayes.
 - [ ] Entrenar Regresión Logística.
 - [x] Entrenar KNN como tercer modelo de comparación (ver `COMPARACION_MODELOS.md`).
-- [ ] Comparar ambos y justificar la selección para uso en la API.
+- [ ] Comparar los modelos y justificar la selección para uso en la API.
 - [ ] Ejecutar ajuste de hiperparámetros con validación cruzada en al menos uno.
 - [ ] Reportar métricas de clasificación por clase (incluyendo F1), matriz de confusión y comparación.
 - [ ] Analizar ejemplos de errores y posibles motivos.
@@ -38,21 +38,23 @@ Lista basada en **Proyecto Integrador – Primer Parcial**, Tópicos y Programac
 - [ ] Documentar API y crear pruebas automatizadas.
 - [ ] Frontend: ingresar texto, mostrar clase/probabilidad.
 - [ ] Frontend: mostrar normalización, tokens, stop words retiradas, raíces o lemas.
-- [ ] Frontend: panel de métricas y comparación de los dos modelos.
+- [ ] Frontend: panel de métricas y comparación de modelos.
 - [ ] README completo para instalar y levantar el sistema desde cero.
 
 ## Colaboración y entrega
-- [ ] **Validar con el docente la organización de repositorios:** el PDF exige un repositorio por grupo; el equipo propone cuatro repositorios dentro de `topicos-proyecto`. Esta diferencia está pendiente de aprobación.
+- [x] **Organización de repositorios aprobada:** el equipo confirmó que el docente permite varios repositorios. Se documentan los tres componentes actuales de `topicos-proyecto` en [ARQUITECTURA.md](ARQUITECTURA.md).
 - [ ] Asegurar que el docente tenga acceso a todos los repositorios relevantes desde el inicio.
 - [ ] Cuenta individual por integrante y configuración de identidad Git.
 - [ ] Ramas por funcionalidad y PR revisado por otro integrante.
 - [ ] Commits frecuentes, descriptivos y auténticos; no reescribir historia de main.
 - [ ] Cada integrante realiza al menos un commit significativo en NLP o ML.
-- [ ] Archivo CONTRIBUCIONES.md y enlaces a contribuciones verificables en los repositorios utilizados.
+- [x] Archivo [CONTRIBUCIONES.md](../CONTRIBUCIONES.md) con autores reales y enlaces a commits y PR de los repositorios utilizados.
 - [ ] Código fuente, artefactos o script regenerador, notebooks, informe en docs/, presentación.
-- [ ] Acordar con el docente cómo identificar la versión final con cuatro repositorios; el PDF solicita un tag `entrega-final` sobre el commit evaluado.
+- [ ] Publicar `entrega-final` sobre los commits finales coordinados de `main`, una vez revisado e integrado el cierre documental; procedimiento en [ENTREGA.md](ENTREGA.md).
 - [ ] Poder reproducir desde las versiones finales coordinadas el sistema completo durante la defensa, explicar aportes y modificar código en vivo.
-- [ ] Declarar uso de asistentes de IA en el informe, si corresponde.
+- [x] Declarar el uso de asistentes de IA en [INFORME_TECNICO.md](INFORME_TECNICO.md#asistencia-de-ia).
+
+Informe técnico y diapositivas disponibles en [INFORME_TECNICO.md](INFORME_TECNICO.md), [PRESENTACION.pdf](PRESENTACION.pdf) y [PRESENTACION.html](PRESENTACION.html). Las casillas restantes conservan su estado hasta que el equipo verifique cada requisito; esta actualización documental no certifica por sí sola toda la entrega.
 
 **Fecha indicada en el PDF:** presentación 3 de noviembre; último commit del día anterior a las 23:59. Para 2026: 2 de noviembre, 23:59.
 
